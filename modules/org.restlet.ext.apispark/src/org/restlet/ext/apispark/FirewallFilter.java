@@ -119,4 +119,26 @@ public class FirewallFilter extends Filter {
         return result;
     }
 
+    /**
+     * Gets the list of rules
+     * 
+     * @return The list of rules
+     */
+    public List<FirewallRule> getRules() {
+        if (rules != null) {
+            rules = new ArrayList<FirewallRule>();
+        }
+        return rules;
+    }
+
+    /**
+     * Sets the list of rules
+     * 
+     * @param rules
+     *            The new list of rules
+     */
+    public void setRules(List<FirewallRule> rules) {
+        this.rules = rules;
+    }
+
 }
