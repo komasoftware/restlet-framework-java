@@ -2,10 +2,11 @@ package org.restlet.ext.apispark.connector.resource;
 
 import java.util.List;
 
-import org.restlet.resource.Get;
+import org.restlet.ext.apispark.connector.Credentials;
+import org.restlet.resource.Post;
 
 public interface AuthenticationResource {
 
-    @Get
-    public List<String> represent(String username, char[] secret);
+    @Post
+    public List<String> getRoles(Credentials credentials);
 }

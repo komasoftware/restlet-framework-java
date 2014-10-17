@@ -64,9 +64,9 @@ public class ConnectorHostAuthenticator extends Authenticator {
                     configuration.getEndpoint(), configuration.getUsername(),
                     configuration.getPassword());
             try {
-                List<String> roles = cr.represent(request
+                List<String> roles = cr.getRoles(new Credentials(request
                         .getChallengeResponse().getIdentifier(), request
-                        .getChallengeResponse().getSecret());
+                        .getChallengeResponse().getSecret()));
                 if (roles != null) {
                     cache.put(credentials, roles);
                     return true;

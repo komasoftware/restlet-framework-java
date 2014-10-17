@@ -42,8 +42,7 @@ public class AuthenticationServerResource extends ServerResource implements
     }
 
     @Override
-    public List<String> represent(String username, char[] secret) {
-        Credentials credentials = new Credentials(username, secret);
+    public List<String> getRoles(Credentials credentials) {
         if (!users.containsKey(credentials)) {
             return null;
         }

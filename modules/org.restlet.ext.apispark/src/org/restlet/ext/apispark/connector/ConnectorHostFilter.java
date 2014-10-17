@@ -1,10 +1,13 @@
 package org.restlet.ext.apispark.connector;
 
 import org.restlet.Context;
+import org.restlet.Request;
+import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.ext.apispark.connector.client.ConfigurationClientResource;
 import org.restlet.ext.apispark.connector.configuration.Configuration;
 import org.restlet.routing.Filter;
+import org.restlet.routing.Redirector;
 
 public class ConnectorHostFilter extends Filter {
 
@@ -15,6 +18,10 @@ public class ConnectorHostFilter extends Filter {
     private char[] password;
 
     private Configuration configuration;
+
+    private ConnectorHostAuthenticator guard;
+
+    private ConnectorHostFirewall firewall;
 
     public ConnectorHostFilter(Context context, String path, String username,
             char[] password, Restlet next) {
@@ -30,8 +37,8 @@ public class ConnectorHostFilter extends Filter {
                 password).represent();
 
         if (configuration != null) {
-            ConnectorHostAuthenticator guard = null;
-            ConnectorHostFirewall firewall = null;
+            guard = null;
+            firewall = null;
             if (configuration.getAuthenticationConfiguration().isEnabled()) {
                 guard = new ConnectorHostAuthenticator(getContext(),
                         configuration.getAuthenticationConfiguration());
@@ -40,19 +47,27 @@ public class ConnectorHostFilter extends Filter {
                 firewall = new ConnectorHostFirewall(
                         configuration.getFirewallConfiguration());
             }
+        }
+        if (getNext() instanceof Redirector) {
+            ((Redirector) getNext()).setTargetTemplate(configuration
+                    .getApiEndpoint() + "{rr}");
+        }
+    }
 
-            if (guard == null && firewall != null) {
-                firewall.setNext(getNext());
-                setNext(firewall);
-            } else if (guard != null && firewall == null) {
-                guard.setNext(getNext());
-                setNext(guard);
-            } else {
-                firewall.setNext(getNext());
-                setNext(guard);
-                guard.setNext(firewall);
+    @Override
+    protected int beforeHandle(Request request, Response response) {
+        if (guard != null) {
+            if (!guard.authenticate(request, response)) {
+                return STOP;
             }
         }
+        if (firewall != null) {
+            int firewallTest = firewall.beforeHandle(request, response);
+            if (firewallTest != CONTINUE) {
+                return firewallTest;
+            }
+        }
+        return CONTINUE;
     }
 
     public String getPath() {

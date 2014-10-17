@@ -3,6 +3,7 @@ package org.restlet.ext.apispark.connector.client;
 import java.util.List;
 
 import org.restlet.data.ChallengeScheme;
+import org.restlet.ext.apispark.connector.Credentials;
 import org.restlet.ext.apispark.connector.resource.AuthenticationResource;
 import org.restlet.resource.ClientResource;
 
@@ -18,8 +19,8 @@ public class AuthenticationClientResource implements AuthenticationResource {
     }
 
     @Override
-    public List<String> represent(String username, char[] secret) {
-        return delegate.represent(username, secret);
+    public List<String> getRoles(Credentials credentials) {
+        return delegate.getRoles(credentials);
     }
 
 }
