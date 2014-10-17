@@ -17,7 +17,7 @@ public class ConfigurationServerResource extends ServerResource implements
 
         AuthenticationConfiguration authConf = new AuthenticationConfiguration();
         authConf.setEnabled(true);
-        authConf.setEndpoint("http://localhost:8182/users");
+        authConf.setEndpoint("http://localhost:8182/authentication");
         authConf.setUsername("owner");
         authConf.setPassword("owner");
         authConf.setRefreshRate(5);

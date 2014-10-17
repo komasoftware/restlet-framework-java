@@ -29,6 +29,9 @@ public class Credentials {
         this.password = password;
     }
 
+    public Credentials() {
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
