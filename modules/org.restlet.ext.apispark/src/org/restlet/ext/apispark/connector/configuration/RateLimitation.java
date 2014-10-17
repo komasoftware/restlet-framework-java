@@ -1,6 +1,10 @@
 package org.restlet.ext.apispark.connector.configuration;
 
 public class RateLimitation {
+    
+    public static final int GLOBAL = 0;
+    
+    public static final int INDIVIDUAL = 1;
 
     private String name;
 
