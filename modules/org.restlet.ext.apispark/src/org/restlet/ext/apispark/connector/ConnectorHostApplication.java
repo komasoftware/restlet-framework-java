@@ -12,6 +12,8 @@ public class ConnectorHostApplication extends Application {
 
     private char[] password;
 
+    private ConnectorHostFilter filter;
+
     public ConnectorHostApplication(String path, String username,
             char[] password) {
         this.path = path;
@@ -23,10 +25,18 @@ public class ConnectorHostApplication extends Application {
     public Restlet createInboundRoot() {
         Redirector redirector = new Redirector(getContext(), "",
                 Redirector.MODE_SERVER_OUTBOUND);
-        ConnectorHostFilter connectorHostFilter = new ConnectorHostFilter(
-                getContext(), path, username, password, redirector);
-        redirector.setTargetTemplate(connectorHostFilter.getConfiguration()
-                .getApiEndpoint() + "{rr}");
-        return connectorHostFilter;
+        filter = new ConnectorHostFilter(getContext(), path, username,
+                password, redirector);
+        redirector.setTargetTemplate(filter.getConfiguration().getApiEndpoint()
+                + "{rr}");
+        return filter;
+    }
+
+    public ConnectorHostFilter getFilter() {
+        return filter;
+    }
+
+    public void setFilter(ConnectorHostFilter filter) {
+        this.filter = filter;
     }
 }

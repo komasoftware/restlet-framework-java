@@ -1,19 +1,19 @@
 package org.restlet.ext.apispark.connector;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.restlet.ext.apispark.FirewallFilter;
 import org.restlet.ext.apispark.connector.configuration.FirewallConfiguration;
 import org.restlet.ext.apispark.connector.configuration.RateLimitation;
 import org.restlet.ext.apispark.internal.firewall.handler.BlockingHandler;
 import org.restlet.ext.apispark.internal.firewall.handler.ThresholdHandler;
-import org.restlet.ext.apispark.internal.firewall.handler.policy.RoleLimitPolicy;
+import org.restlet.ext.apispark.internal.firewall.handler.policy.UniqueLimitPolicy;
 import org.restlet.ext.apispark.internal.firewall.rule.FirewallCounterRule;
+import org.restlet.ext.apispark.internal.firewall.rule.FirewallRule;
 import org.restlet.ext.apispark.internal.firewall.rule.PeriodicFirewallCounterRule;
-import org.restlet.ext.apispark.internal.firewall.rule.policy.UserCountingPolicy;
+import org.restlet.ext.apispark.internal.firewall.rule.policy.HostDomainCountingPolicy;
+import org.restlet.ext.apispark.internal.firewall.rule.policy.IpAddressCountingPolicy;
 
 public class ConnectorHostFirewall extends FirewallFilter {
 
@@ -33,50 +33,38 @@ public class ConnectorHostFirewall extends FirewallFilter {
     }
 
     public void configure() {
+        setRules(new ArrayList<FirewallRule>());
         configure(configuration.getRateLimitations());
     }
 
     public void configure(List<RateLimitation> firewalls) {
-        Map<Integer, List<RateLimitation>> sortedFirewalls = sortRateLimitsByPeriod(firewalls);
-        for (int period : sortedFirewalls.keySet()) {
-            FirewallCounterRule rule = new PeriodicFirewallCounterRule(period,
-                    new UserCountingPolicy());
 
-            // Create the Threshold handler.
-            Map<String, Integer> limitsPerRole = new HashMap<String, Integer>();
-            RoleLimitPolicy limitPolicy = new RoleLimitPolicy(limitsPerRole);
-            ThresholdHandler handler = new BlockingHandler(limitPolicy);
+        for (RateLimitation rateLimitation : firewalls) {
+            if (rateLimitation.getType() == RateLimitation.GLOBAL) {
+                FirewallCounterRule rule = new PeriodicFirewallCounterRule(
+                        rateLimitation.getPeriod(),
+                        new HostDomainCountingPolicy());
 
-            // Iterate through the rate limits.
-            for (RateLimitation rateLimitation : sortedFirewalls.get(period)) {
-                String group = rateLimitation.getGroup();
-                if (group.equals("0")) {
-                    // Limits all users
-                    limitPolicy.defaultLimit = rateLimitation.getLimit();
-                } else {
-                    // Limits for a given group (role)
-                    limitsPerRole.put(group, rateLimitation.getLimit());
-                }
-            }
+                // Create the Threshold handler.
+                UniqueLimitPolicy limitPolicy = new UniqueLimitPolicy(
+                        rateLimitation.getLimit());
+                ThresholdHandler handler = new BlockingHandler(limitPolicy);
 
-            rule.addHandler(handler);
-            this.add(rule);
-        }
+                rule.addHandler(handler);
+                this.add(rule);
+            } else if (rateLimitation.getType() == RateLimitation.INDIVIDUAL) {
+                FirewallCounterRule rule = new PeriodicFirewallCounterRule(
+                        rateLimitation.getPeriod(),
+                        new IpAddressCountingPolicy());
 
-    }
+                // Create the Threshold handler.
+                UniqueLimitPolicy limitPolicy = new UniqueLimitPolicy(
+                        rateLimitation.getLimit());
+                ThresholdHandler handler = new BlockingHandler(limitPolicy);
 
-    private static Map<Integer, List<RateLimitation>> sortRateLimitsByPeriod(
-            List<RateLimitation> rateLimits) {
-        Map<Integer, List<RateLimitation>> sortedRateLimits = new HashMap<Integer, List<RateLimitation>>();
-        for (RateLimitation rateLimit : rateLimits) {
-            if (sortedRateLimits.containsKey(rateLimit.getPeriod())) {
-                sortedRateLimits.get(rateLimit.getPeriod()).add(rateLimit);
-            } else {
-                List<RateLimitation> limitations = new ArrayList<RateLimitation>();
-                limitations.add(rateLimit);
-                sortedRateLimits.put(rateLimit.getPeriod(), limitations);
+                rule.addHandler(handler);
+                this.add(rule);
             }
         }
-        return sortedRateLimits;
     }
 }

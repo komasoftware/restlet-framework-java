@@ -32,7 +32,7 @@ public class ConnectorHostFilter extends Filter {
         configure();
     }
 
-    private void configure() {
+    public void configure() {
         configuration = new ConfigurationClientResource(path, username,
                 password).represent();
 

@@ -8,7 +8,7 @@ public class RateLimitation {
 
     private String name;
 
-    private String group;
+    private int type;
 
     private int period;
 
@@ -22,12 +22,12 @@ public class RateLimitation {
         this.name = name;
     }
 
-    public String getGroup() {
-        return group;
+    public int getType() {
+        return type;
     }
 
-    public void setGroup(String group) {
-        this.group = group;
+    public void setType(int type) {
+        this.type = type;
     }
 
     public int getPeriod() {

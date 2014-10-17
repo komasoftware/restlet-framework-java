@@ -1,5 +1,6 @@
 package org.restlet.ext.apispark.connector.configuration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FirewallConfiguration {
@@ -9,6 +10,9 @@ public class FirewallConfiguration {
     private boolean enabled;
 
     public List<RateLimitation> getRateLimitations() {
+        if (rateLimitations == null) {
+            rateLimitations = new ArrayList<RateLimitation>();
+        }
         return rateLimitations;
     }
 
