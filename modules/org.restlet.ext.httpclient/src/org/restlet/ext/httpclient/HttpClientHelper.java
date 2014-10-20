@@ -304,7 +304,7 @@ public class HttpClientHelper extends
             }
         }
 
-        schemeRegistry.register(new Scheme("https", 443, sslSocketFactory));
+        schemeRegistry.register(new Scheme("https", sslSocketFactory, 443));
         // [enddef]
     }
 

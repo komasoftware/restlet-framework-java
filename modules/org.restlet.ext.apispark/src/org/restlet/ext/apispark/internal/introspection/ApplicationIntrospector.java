@@ -112,8 +112,7 @@ public class ApplicationIntrospector extends IntrospectionUtils {
      */
     public static Definition getDefinition(Application application,
             Reference baseRef, Component component) {
-        return getDefinition(application, baseRef, component,
-                (List<IntrospectorPlugin>) null);
+        return getDefinition(application, baseRef, component, null);
     }
 
     /**
@@ -128,6 +127,8 @@ public class ApplicationIntrospector extends IntrospectionUtils {
      *            as the endpoint.
      * 
      * @param introspectorPlugins
+     *              Optional list of introspector plugins
+     *
      * @return An application description.
      */
     public static Definition getDefinition(Application application,
