@@ -10,6 +10,8 @@ import org.restlet.routing.Redirector;
 
 public class ApisparkAgentFilter extends Filter {
 
+    private final String AUTHENTICATION = "/authentication";
+
     private String apisparkEndpoint;
 
     private String username;
@@ -32,8 +34,9 @@ public class ApisparkAgentFilter extends Filter {
     }
 
     public void configure() {
-        configuration = new ConfigurationClientResource(apisparkEndpoint,
-                username, password).represent();
+        System.out.println(">>>>>>>>>>>>" + apisparkEndpoint + AUTHENTICATION);
+        configuration = new ConfigurationClientResource(apisparkEndpoint
+                + AUTHENTICATION, username, password).represent();
 
         if (configuration != null) {
             guard = null;

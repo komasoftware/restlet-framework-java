@@ -14,8 +14,13 @@ public class ApisparkAgentService extends Service {
 
     private ApisparkAgentFilter filter;
 
-    public ApisparkAgentService(String propertiesFileName) {
-        // TODO
+    public ApisparkAgentService(String apisparkEndpoint, String username,
+            char[] password) {
+        filter = new ApisparkAgentFilter(getContext(), apisparkEndpoint,
+                username, password);
+        this.apisparkEndpoint = apisparkEndpoint;
+        this.username = username;
+        this.password = password;
     }
 
     public String getApisparkEndpoint() {
@@ -52,8 +57,7 @@ public class ApisparkAgentService extends Service {
 
     @Override
     public Filter createInboundFilter(Context context) {
-        filter = new ApisparkAgentFilter(context, apisparkEndpoint, username,
-                password);
+        filter.setContext(context);
         return filter;
     }
 }
