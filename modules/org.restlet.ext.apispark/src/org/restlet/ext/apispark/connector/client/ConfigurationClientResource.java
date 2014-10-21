@@ -12,11 +12,8 @@ public class ConfigurationClientResource implements ConfigurationResource {
     public ConfigurationClientResource(String path, String username,
             char[] password) {
         ClientResource cr = new ClientResource(path);
-        String pw = "";
-        for (char c : password) {
-            pw += c;
-        }
-        cr.setChallengeResponse(ChallengeScheme.HTTP_BASIC, username, pw);
+        cr.setChallengeResponse(ChallengeScheme.HTTP_BASIC, username,
+                new String(password));
         this.delegate = cr.wrap(ConfigurationResource.class);
     }
 

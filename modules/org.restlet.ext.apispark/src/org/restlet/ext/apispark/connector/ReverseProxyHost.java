@@ -6,7 +6,6 @@ import org.restlet.Component;
 import org.restlet.data.MediaType;
 import org.restlet.data.Protocol;
 import org.restlet.ext.apispark.connector.configuration.ApisparkAgentConfiguration;
-import org.restlet.ext.apispark.connector.configuration.ApisparkAgentProperties;
 import org.restlet.ext.jackson.JacksonRepresentation;
 import org.restlet.representation.FileRepresentation;
 
@@ -29,18 +28,12 @@ public class ReverseProxyHost {
 
         // Retrieve the properties (endpoint and credentials to the APISpark
         // service)
-        ApisparkAgentProperties properties = new JacksonRepresentation<ApisparkAgentProperties>(
+        ApisparkAgentConfiguration configuration = new JacksonRepresentation<ApisparkAgentConfiguration>(
                 new FileRepresentation(new File(configPath),
                         MediaType.APPLICATION_YAML),
-                ApisparkAgentProperties.class).getObject();
+                ApisparkAgentConfiguration.class).getObject();
 
-        ApisparkAgentService service = new ApisparkAgentService(
-                properties.getApisparkEndpoint(), properties.getUsername(),
-                properties.getPassword());
-
-        // Retrieve the configuration from the APISpark service
-        ApisparkAgentConfiguration configuration = service.getFilter()
-                .getConfiguration();
+        ApisparkAgentService service = new ApisparkAgentService(configuration);
 
         // Launch the reverse proxy component
         Component reverseProxyHost = new Component();

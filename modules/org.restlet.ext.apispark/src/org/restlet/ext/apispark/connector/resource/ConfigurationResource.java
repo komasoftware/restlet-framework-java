@@ -5,6 +5,6 @@ import org.restlet.resource.Get;
 
 public interface ConfigurationResource {
 
-    @Get
+    @Get("yaml")
     public ApisparkAgentConfiguration represent();
 }

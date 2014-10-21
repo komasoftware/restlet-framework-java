@@ -8,7 +8,7 @@ import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.ext.apispark.connector.client.AuthenticationClientResource;
-import org.restlet.ext.apispark.connector.configuration.ApisparkAgentAuthenticationConfiguration;
+import org.restlet.ext.apispark.connector.configuration.ApisparkAgentConfiguration;
 import org.restlet.resource.ResourceException;
 import org.restlet.security.Authenticator;
 
@@ -18,34 +18,15 @@ import com.google.common.cache.LoadingCache;
 
 public class ApisparkAgentAuthenticator extends Authenticator {
 
-    private final String PATH = "/authentication";
+    private final String ROUTE_AUTHENTICATION = "/authentication";
 
-    private String apisparkEndpoint;
-
-    private String username;
-
-    private char[] password;
-
-    private ApisparkAgentAuthenticationConfiguration configuration;
+    private ApisparkAgentConfiguration configuration;
 
     private LoadingCache<Credentials, List<String>> cache;
 
-    public ApisparkAgentAuthenticationConfiguration getAuthenticationConfiguration() {
-        return configuration;
-    }
-
-    public void setAuthenticationConfiguration(
-            ApisparkAgentAuthenticationConfiguration configuration) {
-        this.configuration = configuration;
-    }
-
     public ApisparkAgentAuthenticator(Context context,
-            ApisparkAgentAuthenticationConfiguration configuration,
-            ApisparkAgentFilter filter) {
+            ApisparkAgentConfiguration configuration) {
         super(context);
-        this.apisparkEndpoint = filter.getApisparkEndpoint() + PATH;
-        this.username = filter.getUsername();
-        this.password = filter.getPassword();
         this.configuration = configuration;
         initializeCache();
     }
@@ -58,9 +39,13 @@ public class ApisparkAgentAuthenticator extends Authenticator {
         };
         this.cache = CacheBuilder
                 .newBuilder()
-                .maximumSize(configuration.getCacheSize())
-                .expireAfterWrite(configuration.getCacheRefreshRate(),
-                        TimeUnit.SECONDS).build(loader);
+                .maximumSize(
+                        configuration.getAuthenticationConfiguration()
+                                .getCacheSize())
+                .expireAfterWrite(
+                        configuration.getAuthenticationConfiguration()
+                                .getCacheRefreshRate(), TimeUnit.SECONDS)
+                .build(loader);
     }
 
     @Override
@@ -72,7 +57,9 @@ public class ApisparkAgentAuthenticator extends Authenticator {
             return true;
         } else {
             AuthenticationClientResource cr = new AuthenticationClientResource(
-                    apisparkEndpoint, username, new String(password));
+                    configuration.getApisparkEndpoint() + ROUTE_AUTHENTICATION,
+                    configuration.getUsername(), new String(
+                            configuration.getPassword()));
             try {
                 List<String> roles = cr.getRoles(new Credentials(request
                         .getChallengeResponse().getIdentifier(), request

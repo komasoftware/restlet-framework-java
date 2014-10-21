@@ -10,23 +10,17 @@ public class ApisparkAgentConfiguration {
 
     private String apiEndpoint;
 
-    private String connectorHostLogin;
-
-    private char[] connectorHostSecret;
-
     private String proxyBasePath;
 
     private String proxyProtocol;
 
-    public String getProxyProtocol() {
-        return proxyProtocol;
-    }
-
-    public void setProxyProtocol(String proxyProtocol) {
-        this.proxyProtocol = proxyProtocol;
-    }
-
     private int proxyPort;
+
+    private String apisparkEndpoint;
+
+    private String username;
+
+    private char[] password;
 
     public ApisparkAgentAuthenticationConfiguration getAuthenticationConfiguration() {
         return authenticationConfiguration;
@@ -63,22 +57,6 @@ public class ApisparkAgentConfiguration {
         this.apiEndpoint = apiEndpoint;
     }
 
-    public String getConnectorHostLogin() {
-        return connectorHostLogin;
-    }
-
-    public void setConnectorHostLogin(String connectorHostLogin) {
-        this.connectorHostLogin = connectorHostLogin;
-    }
-
-    public char[] getConnectorHostSecret() {
-        return connectorHostSecret;
-    }
-
-    public void setConnectorHostSecret(char[] connectorHostSecret) {
-        this.connectorHostSecret = connectorHostSecret;
-    }
-
     public String getProxyBasePath() {
         return proxyBasePath;
     }
@@ -87,11 +65,43 @@ public class ApisparkAgentConfiguration {
         this.proxyBasePath = proxyBasePath;
     }
 
+    public String getProxyProtocol() {
+        return proxyProtocol;
+    }
+
+    public void setProxyProtocol(String proxyProtocol) {
+        this.proxyProtocol = proxyProtocol;
+    }
+
     public int getProxyPort() {
         return proxyPort;
     }
 
     public void setProxyPort(int proxyPort) {
         this.proxyPort = proxyPort;
+    }
+
+    public String getApisparkEndpoint() {
+        return apisparkEndpoint;
+    }
+
+    public void setApisparkEndpoint(String apisparkEndpoint) {
+        this.apisparkEndpoint = apisparkEndpoint;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public char[] getPassword() {
+        return password;
+    }
+
+    public void setPassword(char[] password) {
+        this.password = password;
     }
 }
