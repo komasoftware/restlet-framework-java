@@ -8,7 +8,7 @@ import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.ext.apispark.connector.client.AuthenticationClientResource;
-import org.restlet.ext.apispark.connector.configuration.AuthenticationConfiguration;
+import org.restlet.ext.apispark.connector.configuration.ApisparkAgentAuthenticationConfiguration;
 import org.restlet.resource.ResourceException;
 import org.restlet.security.Authenticator;
 
@@ -16,30 +16,41 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-public class ConnectorHostAuthenticator extends Authenticator {
+public class ApisparkAgentAuthenticator extends Authenticator {
 
-    private AuthenticationConfiguration configuration;
+    private final String PATH = "/authentication";
+
+    private String apisparkEndpoint;
+
+    private String username;
+
+    private char[] password;
+
+    private ApisparkAgentAuthenticationConfiguration configuration;
 
     private LoadingCache<Credentials, List<String>> cache;
 
-    public AuthenticationConfiguration getAuthenticationConfiguration() {
+    public ApisparkAgentAuthenticationConfiguration getAuthenticationConfiguration() {
         return configuration;
     }
 
     public void setAuthenticationConfiguration(
-            AuthenticationConfiguration configuration) {
+            ApisparkAgentAuthenticationConfiguration configuration) {
         this.configuration = configuration;
     }
 
-    public ConnectorHostAuthenticator(Context context,
-            AuthenticationConfiguration configuration) {
+    public ApisparkAgentAuthenticator(Context context,
+            ApisparkAgentAuthenticationConfiguration configuration,
+            ApisparkAgentFilter filter) {
         super(context);
+        this.apisparkEndpoint = filter.getApisparkEndpoint() + PATH;
+        this.username = filter.getUsername();
+        this.password = filter.getPassword();
         this.configuration = configuration;
         initializeCache();
     }
 
     private void initializeCache() {
-        // TODO see to this
         CacheLoader<Credentials, List<String>> loader = new CacheLoader<Credentials, List<String>>() {
             public List<String> load(Credentials key) {
                 return new ArrayList<String>();
@@ -48,7 +59,7 @@ public class ConnectorHostAuthenticator extends Authenticator {
         this.cache = CacheBuilder
                 .newBuilder()
                 .maximumSize(configuration.getCacheSize())
-                .expireAfterWrite(configuration.getRefreshRate(),
+                .expireAfterWrite(configuration.getCacheRefreshRate(),
                         TimeUnit.SECONDS).build(loader);
     }
 
@@ -61,8 +72,7 @@ public class ConnectorHostAuthenticator extends Authenticator {
             return true;
         } else {
             AuthenticationClientResource cr = new AuthenticationClientResource(
-                    configuration.getEndpoint(), configuration.getUsername(),
-                    configuration.getPassword());
+                    apisparkEndpoint, username, new String(password));
             try {
                 List<String> roles = cr.getRoles(new Credentials(request
                         .getChallengeResponse().getIdentifier(), request

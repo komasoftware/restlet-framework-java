@@ -5,9 +5,9 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.routing.Redirector;
 
-public class ConnectorHostRedirector extends Redirector {
+public class ReverseProxyRedirector extends Redirector {
 
-    public ConnectorHostRedirector(Context context, String targetPattern,
+    public ReverseProxyRedirector(Context context, String targetPattern,
             int mode) {
         super(context, targetPattern, mode);
     }

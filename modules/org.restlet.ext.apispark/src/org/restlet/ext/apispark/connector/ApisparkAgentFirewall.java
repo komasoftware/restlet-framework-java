@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.restlet.ext.apispark.FirewallFilter;
-import org.restlet.ext.apispark.connector.configuration.FirewallConfiguration;
-import org.restlet.ext.apispark.connector.configuration.RateLimitation;
+import org.restlet.ext.apispark.connector.configuration.ApisparkAgentFirewallConfiguration;
+import org.restlet.ext.apispark.connector.configuration.ApisparkAgentRateLimitation;
 import org.restlet.ext.apispark.internal.firewall.handler.BlockingHandler;
 import org.restlet.ext.apispark.internal.firewall.handler.ThresholdHandler;
 import org.restlet.ext.apispark.internal.firewall.handler.policy.UniqueLimitPolicy;
@@ -15,20 +15,20 @@ import org.restlet.ext.apispark.internal.firewall.rule.PeriodicFirewallCounterRu
 import org.restlet.ext.apispark.internal.firewall.rule.policy.HostDomainCountingPolicy;
 import org.restlet.ext.apispark.internal.firewall.rule.policy.IpAddressCountingPolicy;
 
-public class ConnectorHostFirewall extends FirewallFilter {
+public class ApisparkAgentFirewall extends FirewallFilter {
 
-    private FirewallConfiguration configuration;
+    private ApisparkAgentFirewallConfiguration configuration;
 
-    public ConnectorHostFirewall(FirewallConfiguration configuration) {
+    public ApisparkAgentFirewall(ApisparkAgentFirewallConfiguration configuration) {
         this.configuration = configuration;
         configure();
     }
 
-    public FirewallConfiguration getConfiguration() {
+    public ApisparkAgentFirewallConfiguration getConfiguration() {
         return configuration;
     }
 
-    public void setConfiguration(FirewallConfiguration configuration) {
+    public void setConfiguration(ApisparkAgentFirewallConfiguration configuration) {
         this.configuration = configuration;
     }
 
@@ -37,10 +37,10 @@ public class ConnectorHostFirewall extends FirewallFilter {
         configure(configuration.getRateLimitations());
     }
 
-    public void configure(List<RateLimitation> firewalls) {
+    public void configure(List<ApisparkAgentRateLimitation> firewalls) {
 
-        for (RateLimitation rateLimitation : firewalls) {
-            if (rateLimitation.getType() == RateLimitation.GLOBAL) {
+        for (ApisparkAgentRateLimitation rateLimitation : firewalls) {
+            if (rateLimitation.getType() == ApisparkAgentRateLimitation.GLOBAL) {
                 FirewallCounterRule rule = new PeriodicFirewallCounterRule(
                         rateLimitation.getPeriod(),
                         new HostDomainCountingPolicy());
@@ -52,7 +52,7 @@ public class ConnectorHostFirewall extends FirewallFilter {
 
                 rule.addHandler(handler);
                 this.add(rule);
-            } else if (rateLimitation.getType() == RateLimitation.INDIVIDUAL) {
+            } else if (rateLimitation.getType() == ApisparkAgentRateLimitation.INDIVIDUAL) {
                 FirewallCounterRule rule = new PeriodicFirewallCounterRule(
                         rateLimitation.getPeriod(),
                         new IpAddressCountingPolicy());

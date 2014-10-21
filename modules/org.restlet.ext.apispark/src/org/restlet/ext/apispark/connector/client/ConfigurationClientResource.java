@@ -1,7 +1,7 @@
 package org.restlet.ext.apispark.connector.client;
 
 import org.restlet.data.ChallengeScheme;
-import org.restlet.ext.apispark.connector.configuration.Configuration;
+import org.restlet.ext.apispark.connector.configuration.ApisparkAgentConfiguration;
 import org.restlet.ext.apispark.connector.resource.ConfigurationResource;
 import org.restlet.resource.ClientResource;
 
@@ -21,7 +21,7 @@ public class ConfigurationClientResource implements ConfigurationResource {
     }
 
     @Override
-    public Configuration represent() {
+    public ApisparkAgentConfiguration represent() {
         return delegate.represent();
     }
 

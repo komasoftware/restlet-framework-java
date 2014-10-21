@@ -3,20 +3,20 @@ package org.restlet.ext.apispark.connector.configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FirewallConfiguration {
+public class ApisparkAgentFirewallConfiguration {
 
-    private List<RateLimitation> rateLimitations;
+    private List<ApisparkAgentRateLimitation> rateLimitations;
 
     private boolean enabled;
 
-    public List<RateLimitation> getRateLimitations() {
+    public List<ApisparkAgentRateLimitation> getRateLimitations() {
         if (rateLimitations == null) {
-            rateLimitations = new ArrayList<RateLimitation>();
+            rateLimitations = new ArrayList<ApisparkAgentRateLimitation>();
         }
         return rateLimitations;
     }
 
-    public void setRateLimitations(List<RateLimitation> rateLimitations) {
+    public void setRateLimitations(List<ApisparkAgentRateLimitation> rateLimitations) {
         this.rateLimitations = rateLimitations;
     }
 

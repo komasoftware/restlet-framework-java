@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.restlet.Component;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Protocol;
-import org.restlet.ext.apispark.connector.ConnectorHostApplication;
+import org.restlet.ext.apispark.connector.ReverseProxyApplication;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 import org.restlet.test.RestletTestCase;
@@ -37,7 +37,7 @@ public class ConnectorHostCallTestCase extends RestletTestCase {
         connectorHost.getServers().add(Protocol.HTTP, 1337);
         connectorHost.getDefaultHost().attach(
                 "/v1",
-                new ConnectorHostApplication(
+                new ReverseProxyApplication(
                         "http://localhost:8182/configuration", "owner", "owner"
                                 .toCharArray()));
         connectorHost.start();

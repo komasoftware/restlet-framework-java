@@ -1,6 +1,6 @@
 package org.restlet.ext.apispark.connector.configuration;
 
-public class RateLimitation {
+public class ApisparkAgentRateLimitation {
     
     public static final int GLOBAL = 0;
     

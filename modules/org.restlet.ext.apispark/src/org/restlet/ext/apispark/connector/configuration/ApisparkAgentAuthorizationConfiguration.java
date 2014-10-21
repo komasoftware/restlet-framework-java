@@ -1,7 +1,6 @@
 package org.restlet.ext.apispark.connector.configuration;
 
-
-public class AuthenticationConfiguration {
+public class ApisparkAgentAuthorizationConfiguration {
 
     private boolean enabled;
 
@@ -10,9 +9,9 @@ public class AuthenticationConfiguration {
     private int cacheSize;
 
     private String endpoint;
-    
+
     private String username;
-    
+
     private String password;
 
     public boolean isEnabled() {
