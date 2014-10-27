@@ -31,43 +31,37 @@
  * Restlet is a registered trademark of Restlet S.A.S.
  */
 
-package org.restlet.ext.apispark.connector;
+package org.restlet.ext.apispark.connector.configuration;
 
-import org.restlet.Request;
-import org.restlet.Response;
-import org.restlet.routing.Filter;
+public class ApisparkAgentAnalyticsConfiguration {
 
-public class ApisparkAgentFilter extends Filter {
+    private boolean enabled;
 
-    private ApisparkAgentAuthenticator guard;
+    private int maxThreads = 5;
 
-    private ApisparkAgentFirewall firewall;
+    private String threadNameFormat = "thread";
 
-    private ApisparkAgentAnalytics analytics;
-
-    public ApisparkAgentFilter(ApisparkAgentAuthenticator guard,
-            ApisparkAgentFirewall firewall, ApisparkAgentAnalytics analytics) {
-        this.guard = guard;
-        this.firewall = firewall;
-        this.analytics = analytics;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    @Override
-    protected int beforeHandle(Request request, Response response) {
-        if (guard != null) {
-            if (!guard.authenticate(request, response)) {
-                return STOP;
-            }
-        }
-        if (firewall != null) {
-            int firewallTest = firewall.beforeHandle(request, response);
-            if (firewallTest != CONTINUE) {
-                return firewallTest;
-            }
-        }
-        if (analytics != null) {
-            analytics.handle(request, response);
-        }
-        return CONTINUE;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public int getMaxThreads() {
+        return maxThreads;
+    }
+
+    public void setMaxThreads(int maxThreads) {
+        this.maxThreads = maxThreads;
+    }
+
+    public String getThreadNameFormat() {
+        return threadNameFormat;
+    }
+
+    public void setThreadNameFormat(String threadNameFormat) {
+        this.threadNameFormat = threadNameFormat;
     }
 }
