@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.restlet.engine.util.StringUtils;
 import org.restlet.ext.apispark.internal.introspection.ApplicationIntrospector;
 import org.restlet.ext.apispark.internal.model.Definition;
 import org.restlet.ext.apispark.internal.model.Endpoint;
@@ -19,7 +20,6 @@ import org.restlet.ext.apispark.internal.model.Representation;
 import org.restlet.ext.apispark.internal.model.Resource;
 import org.restlet.ext.apispark.internal.model.Response;
 import org.restlet.ext.apispark.internal.model.Types;
-import org.restlet.ext.apispark.internal.utils.StringUtils;
 
 import com.wordnik.swagger.models.ArrayModel;
 import com.wordnik.swagger.models.Contact;
@@ -50,11 +50,11 @@ import com.wordnik.swagger.models.properties.StringProperty;
  */
 public class Swagger2Translator {
 
-    public static final Float SWAGGER_2_0_VERSION = 2.0f;
-
     /** Internal logger. */
     protected static Logger LOGGER = Logger
-            .getLogger(ApplicationIntrospector.class.getName());
+            .getLogger(Swagger2Translator.class.getName());
+
+    public static final String SWAGGER_2_0_VERSION = "2.0";
 
     /**
      * Translates a Restlet Web API Definition to a Swagger definition
@@ -360,6 +360,11 @@ public class Swagger2Translator {
                 continue;
             }
 
+            if (StringUtils.isNullOrEmpty(representation.getIdentifier())) {
+                LOGGER.warning("A representation should have an identifier:" + representation.getName());
+                continue;
+            }
+
             /* Representation -> Model */
             ModelImpl modelSwagger = new ModelImpl();
             modelSwagger.setName(representation.getIdentifier());
@@ -444,7 +449,7 @@ public class Swagger2Translator {
             return new BooleanProperty();
         }
         // Reference to a representation
-        return new RefProperty(type);
+        return new RefProperty().asDefault(type);
     }
 
     // TODO wait for Swagger class
