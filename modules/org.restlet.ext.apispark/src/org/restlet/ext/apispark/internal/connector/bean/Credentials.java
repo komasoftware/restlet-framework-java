@@ -31,37 +31,33 @@
  * Restlet is a registered trademark of Restlet S.A.S.
  */
 
-package org.restlet.ext.apispark.connector.configuration;
+package org.restlet.ext.apispark.internal.connector.bean;
 
-public class ApisparkAgentAnalyticsConfiguration {
+public class Credentials {
 
-    private boolean enabled;
+    private String username;
 
-    private int maxThreads = 5;
+    private char[] password;
 
-    private String threadNameFormat = "thread";
-
-    public boolean isEnabled() {
-        return enabled;
+    public Credentials(String username, char[] password) {
+        this.username = username;
+        this.password = password;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public String getUsername() {
+        return username;
     }
 
-    public int getMaxThreads() {
-        return maxThreads;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public void setMaxThreads(int maxThreads) {
-        this.maxThreads = maxThreads;
+    public char[] getPassword() {
+        return password;
     }
 
-    public String getThreadNameFormat() {
-        return threadNameFormat;
+    public void setPassword(char[] password) {
+        this.password = password;
     }
 
-    public void setThreadNameFormat(String threadNameFormat) {
-        this.threadNameFormat = threadNameFormat;
-    }
 }

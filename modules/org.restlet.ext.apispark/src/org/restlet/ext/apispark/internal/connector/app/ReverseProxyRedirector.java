@@ -31,43 +31,22 @@
  * Restlet is a registered trademark of Restlet S.A.S.
  */
 
-package org.restlet.ext.apispark.connector;
+package org.restlet.ext.apispark.internal.connector.app;
 
-import org.restlet.Request;
-import org.restlet.Response;
-import org.restlet.routing.Filter;
+import org.restlet.Context;
+import org.restlet.routing.Redirector;
 
-public class ApisparkAgentFilter extends Filter {
+//TODO MOVE
+public class ReverseProxyRedirector extends Redirector {
 
-    private ApisparkAgentAuthenticator guard;
-
-    private ApisparkAgentFirewall firewall;
-
-    private ApisparkAgentAnalytics analytics;
-
-    public ApisparkAgentFilter(ApisparkAgentAuthenticator guard,
-            ApisparkAgentFirewall firewall, ApisparkAgentAnalytics analytics) {
-        this.guard = guard;
-        this.firewall = firewall;
-        this.analytics = analytics;
+    public ReverseProxyRedirector(Context context, String targetPattern,
+            int mode) {
+        super(context, targetPattern, mode);
     }
-
-    @Override
-    protected int beforeHandle(Request request, Response response) {
-        if (guard != null) {
-            if (!guard.authenticate(request, response)) {
-                return STOP;
-            }
-        }
-        if (firewall != null) {
-            int firewallTest = firewall.beforeHandle(request, response);
-            if (firewallTest != CONTINUE) {
-                return firewallTest;
-            }
-        }
-        if (analytics != null) {
-            analytics.handle(request, response);
-        }
-        return CONTINUE;
-    }
+//
+//    @Override
+//    public void handle(Request request, Response response) {
+//        System.out.println();
+//        super.handle(request, response);
+//    }
 }

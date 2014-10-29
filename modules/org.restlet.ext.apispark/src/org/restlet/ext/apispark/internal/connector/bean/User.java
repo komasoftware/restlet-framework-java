@@ -31,33 +31,59 @@
  * Restlet is a registered trademark of Restlet S.A.S.
  */
 
-package org.restlet.ext.apispark.connector.configuration;
+package org.restlet.ext.apispark.internal.connector.bean;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class ApisparkAgentFirewallConfiguration {
+public class User {
 
-    private List<ApisparkAgentRateLimitation> rateLimitations;
+    private String username;
 
-    private boolean enabled;
+    private String email;
 
-    public List<ApisparkAgentRateLimitation> getRateLimitations() {
-        if (rateLimitations == null) {
-            rateLimitations = new ArrayList<ApisparkAgentRateLimitation>();
-        }
-        return rateLimitations;
+    private String firstName;
+
+    private String lastName;
+
+    private List<String> roles;
+
+    public String getUsername() {
+        return username;
     }
 
-    public void setRateLimitations(List<ApisparkAgentRateLimitation> rateLimitations) {
-        this.rateLimitations = rateLimitations;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public String getEmail() {
+        return email;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 }

@@ -31,23 +31,22 @@
  * Restlet is a registered trademark of Restlet S.A.S.
  */
 
-package org.restlet.ext.apispark.connector;
+package org.restlet.ext.apispark;
 
 import org.restlet.Context;
-import org.restlet.Request;
-import org.restlet.Response;
-import org.restlet.routing.Redirector;
+import org.restlet.routing.Filter;
+import org.restlet.service.Service;
 
-public class ReverseProxyRedirector extends Redirector {
+public class ConnectorAgentService extends Service {
 
-    public ReverseProxyRedirector(Context context, String targetPattern,
-            int mode) {
-        super(context, targetPattern, mode);
+    private ConnectorAgentConfig connectorAgentConfig;
+
+    public ConnectorAgentService(ConnectorAgentConfig connectorAgentConfig) {
+        this.connectorAgentConfig = connectorAgentConfig;
     }
-    
+
     @Override
-    public void handle(Request request, Response response) {
-        System.out.println();
-        super.handle(request, response);
+    public Filter createInboundFilter(Context context) {
+        return new ConnectorAgentFilter(connectorAgentConfig, context);
     }
 }
