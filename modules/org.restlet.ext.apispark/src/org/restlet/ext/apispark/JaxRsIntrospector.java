@@ -85,12 +85,12 @@ import org.restlet.representation.Variant;
 import org.restlet.routing.Template;
 
 /**
- * Publish the documentation of a Jaxrs-based Application to the APISpark
- * console.
+ * Extract and push the web API documentation of a JAX-RS API-based
+ * {@link javax.ws.rs.core.Application} to the APISpark console.
  * 
  * @author Thierry Boileau
  */
-public class JaxrsIntrospector extends IntrospectionUtils {
+public class JaxRsIntrospector {
 
     /** Internal logger. */
     protected static Logger LOGGER = Context.getCurrentLogger();
@@ -706,15 +706,15 @@ public class JaxrsIntrospector extends IntrospectionUtils {
         // Introduced by Jax-rs 2.0,
         // Context context = method.getAnnotation(Context.class);
     }
-
-    private static void scanAnnotation() {
-        // HttpMethod x
-        // NameBinding x
-    }
-
-    private static void scanConstructor() {
-        // Encoded x
-    }
+//
+//    private static void scanAnnotation() {
+//        // HttpMethod x
+//        // NameBinding x
+//    }
+//
+//    private static void scanConstructor() {
+//        // Encoded x
+//    }
 
     /** The current Web API definition. */
     private Definition definition;
@@ -723,9 +723,9 @@ public class JaxrsIntrospector extends IntrospectionUtils {
      * Constructor.
      * 
      * @param application
-     *            An application to introspect.
+     *            An {@link javax.ws.rs.core.Application} to introspect.
      */
-    public JaxrsIntrospector(Application application) {
+    public JaxRsIntrospector(Application application) {
         ApplicationInfo applicationInfo = getApplicationInfo(application, null);
         definition = DefinitionTranslator.toDefinition(applicationInfo);
 

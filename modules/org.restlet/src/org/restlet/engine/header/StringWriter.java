@@ -31,42 +31,31 @@
  * Restlet is a registered trademark of Restlet S.A.S.
  */
 
-package com.google.gwt.emul.java.io;
+package org.restlet.engine.header;
 
-import java.io.IOException;
+import java.util.Set;
 
 /**
- * Emulation of the {@link java.io.StringWriter} class for the GWT edition.
+ * String header writer.
  * 
- * @author Jerome Louvel
+ * @author Manuel Boillod
  */
-public abstract class StringWriter implements Appendable {
+public class StringWriter extends HeaderWriter<String> {
 
-    private StringBuilder sb;
-
-    public StringWriter() {
-        super();
-        this.sb = new StringBuilder();
-    }
-
-    public Appendable append(char c) {
-        return sb.append(c);
-    }
-
-    public Appendable append(CharSequence csq, int start, int end)
-            throws IOException {
-        return sb.append(csq, start, end);
-    }
-
-    public Appendable append(CharSequence csq) {
-        return sb.append(csq);
-    }
-
-    public void close() throws IOException {
+    /**
+     * Writes a set of values with a comma separator.
+     * 
+     * @param values
+     *            The set of values.
+     * @return The formatted set of values.
+     */
+    public static String write(Set<String> values) {
+        return new StringWriter().append(values).toString();
     }
 
     @Override
-    public String toString() {
-        return sb.toString();
+    public StringWriter append(String value) {
+        return (StringWriter) appendToken(value);
     }
+
 }

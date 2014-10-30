@@ -211,7 +211,7 @@ public class SwaggerSpecificationRestlet extends Restlet {
         super.handle(request, response);
 
         // CORS support for Swagger-UI
-        corsResponseHelper.addCorsResponseHeaderIfCorsRequest(request, response);
+        corsResponseHelper.addCorsResponseHeaders(request, response);
 
         if (Method.GET.equals(request.getMethod())) {
             Object resource = request.getAttributes().get("resource");

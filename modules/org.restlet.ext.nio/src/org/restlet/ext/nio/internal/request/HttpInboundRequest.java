@@ -50,7 +50,6 @@ import org.restlet.data.ClientInfo;
 import org.restlet.data.Conditions;
 import org.restlet.data.Cookie;
 import org.restlet.data.Header;
-import org.restlet.data.HeaderName;
 import org.restlet.data.Method;
 import org.restlet.data.Protocol;
 import org.restlet.data.Range;
@@ -62,7 +61,7 @@ import org.restlet.engine.header.CacheDirectiveReader;
 import org.restlet.engine.header.CookieReader;
 import org.restlet.engine.header.ExpectationReader;
 import org.restlet.engine.header.HeaderConstants;
-import org.restlet.engine.header.HeaderNameReader;
+import org.restlet.engine.header.StringReader;
 import org.restlet.engine.header.HeaderReader;
 import org.restlet.engine.header.MethodReader;
 import org.restlet.engine.header.PreferenceReader;
@@ -657,12 +656,12 @@ public class HttpInboundRequest extends Request implements InboundRequest {
     }
 
     @Override
-    public Set<HeaderName> getAccessControlRequestHeaders() {
-        Set<HeaderName> result = super.getAccessControlRequestHeaders();
+    public Set<String> getAccessControlRequestHeaders() {
+        Set<String> result = super.getAccessControlRequestHeaders();
         if (!accessControlRequestHeadersAdded) {
             for (String header : getHeaders()
                     .getValuesArray(HeaderConstants.HEADER_ACCESS_CONTROL_REQUEST_HEADERS, true)) {
-                new HeaderNameReader(header).addValues(result);
+                new StringReader(header).addValues(result);
             }
             accessControlRequestHeadersAdded = true;
         }
@@ -670,12 +669,14 @@ public class HttpInboundRequest extends Request implements InboundRequest {
     }
 
     @Override
-    public Set<Method> getAccessControlRequestMethod() {
-        Set<Method> result = super.getAccessControlRequestMethod();
+    public Method getAccessControlRequestMethod() {
+        Method result = super.getAccessControlRequestMethod();
         if (!accessControlRequestMethodAdded) {
-            for (String header : getHeaders()
-                    .getValuesArray(HeaderConstants.HEADER_ACCESS_CONTROL_REQUEST_METHOD, true)) {
-                new MethodReader(header).addValues(result);
+            String header = getHeaders()
+                    .getFirstValue(HeaderConstants.HEADER_ACCESS_CONTROL_REQUEST_METHOD, true);
+            if (header != null) {
+                result = Method.valueOf(header);
+                super.setAccessControlRequestMethod(result);
             }
             accessControlRequestMethodAdded = true;
         }
@@ -859,13 +860,13 @@ public class HttpInboundRequest extends Request implements InboundRequest {
 
 
     @Override
-    public void setAccessControlRequestHeaders(Set<HeaderName> accessControlRequestHeaders) {
+    public void setAccessControlRequestHeaders(Set<String> accessControlRequestHeaders) {
         super.setAccessControlRequestHeaders(accessControlRequestHeaders);
         this.accessControlRequestHeadersAdded = true;
     }
 
     @Override
-    public void setAccessControlRequestMethod(Set<Method> accessControlRequestMethod) {
+    public void setAccessControlRequestMethod(Method accessControlRequestMethod) {
         super.setAccessControlRequestMethod(accessControlRequestMethod);
         this.accessControlRequestMethodAdded = true;
     }

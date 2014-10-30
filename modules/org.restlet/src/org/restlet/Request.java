@@ -46,7 +46,6 @@ import org.restlet.data.ClientInfo;
 import org.restlet.data.Conditions;
 import org.restlet.data.Cookie;
 import org.restlet.data.Encoding;
-import org.restlet.data.HeaderName;
 import org.restlet.data.Language;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
@@ -137,10 +136,10 @@ public class Request extends Message {
     private volatile Reference rootRef;
 
     /** The set of headers requested on the requested resource in a CORS request. */
-    private volatile Set<HeaderName> accessControlRequestHeaders;
+    private volatile Set<String> accessControlRequestHeaders;
 
-    /** The set of methods requested on the requested resource in a CORS request. */
-    private volatile Set<Method> accessControlRequestMethod;
+    /** The method requested on the requested resource in a CORS request. */
+    private volatile Method accessControlRequestMethod;
 
     /**
      * Constructor.
@@ -604,40 +603,31 @@ public class Request extends Message {
      *
      * @return The set of requested headers in a CORS request..
      */
-    public Set<HeaderName> getAccessControlRequestHeaders() {
+    public Set<String> getAccessControlRequestHeaders() {
         // Lazy initialization with double-check.
-        Set<HeaderName> a = this.accessControlRequestHeaders;
+        Set<String> a = this.accessControlRequestHeaders;
         if (a == null) {
             synchronized (this) {
                 a = this.accessControlRequestHeaders;
                 if (a == null) {
-                    this.accessControlRequestHeaders = a = new CopyOnWriteArraySet<HeaderName>();
+                    this.accessControlRequestHeaders = a = new CopyOnWriteArraySet<String>();
                 }
             }
         }
         return a;    }
 
     /**
-     * Returns the modifiable set of methods requested on the requested resource.
+     * Returns the method requested on the requested resource.
      *  in a CORS request.
      * <br>
      * Note that when used with HTTP connectors, this property maps to the
      * "Access-Control-Request-Method" header.
      *
-     * @return The set of requested methods in a CORS request..
+     * @return The requested method in a CORS request..
      */
-    public Set<Method> getAccessControlRequestMethod() {
-        // Lazy initialization with double-check.
-        Set<Method> a = this.accessControlRequestMethod;
-        if (a == null) {
-            synchronized (this) {
-                a = this.accessControlRequestMethod;
-                if (a == null) {
-                    this.accessControlRequestMethod = a = new CopyOnWriteArraySet<Method>();
-                }
-            }
-        }
-        return a;    }
+    public Method getAccessControlRequestMethod() {
+        return this.accessControlRequestMethod;
+    }
 
     /**
      * Indicates if the request is asynchronous. The test consist in verifying
@@ -964,7 +954,7 @@ public class Request extends Message {
      *            The set of headers requested on the requested resource in
      *            a CORS request.
      */
-    public void setAccessControlRequestHeaders(Set<HeaderName> accessControlRequestHeaders) {
+    public void setAccessControlRequestHeaders(Set<String> accessControlRequestHeaders) {
         synchronized (getAccessControlRequestHeaders()) {
             if (accessControlRequestHeaders != this.accessControlRequestHeaders) {
                 this.accessControlRequestHeaders.clear();
@@ -977,26 +967,19 @@ public class Request extends Message {
 
 
     /**
-     * Sets the set of methods requested on the requested resource
+     * Sets the method requested on the requested resource
      * in a CORS request.<br>
      * <br>
      * Note that when used with HTTP connectors, this property maps to the
      * "Access-Control-Allow-Methods" header.
      *
      * @param accessControlRequestMethod
-     *            The set of methods requested on the requested resource in
+     *            The method requested on the requested resource in
      *            a CORS request.
      */
-    public void setAccessControlRequestMethod(Set<Method> accessControlRequestMethod) {
-        synchronized (getAccessControlRequestMethod()) {
-            if (accessControlRequestMethod != this.accessControlRequestMethod) {
-                this.accessControlRequestMethod.clear();
-
-                if (accessControlRequestMethod != null) {
-                    this.accessControlRequestMethod.addAll(accessControlRequestMethod);
-                }
-            }
-        }    }
+    public void setAccessControlRequestMethod(Method accessControlRequestMethod) {
+        this.accessControlRequestMethod = accessControlRequestMethod;
+    }
 
     /**
      * Displays a synthesis of the request like an HTTP request line.

@@ -31,44 +31,65 @@
  * Restlet is a registered trademark of Restlet S.A.S.
  */
 
-package org.restlet.ext.apispark.internal.firewall.rule;
+package org.restlet.ext.apispark.internal.firewall;
 
+import java.util.List;
+
+import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
+import org.restlet.ext.apispark.internal.firewall.rule.FirewallRule;
 import org.restlet.routing.Filter;
 
 /**
- * A {@link FirewallRule} has the semantic of a {@link Filter}. It is able to
- * check a request and to update the response.
+ * Filter that controls the incoming requests by applying a set of rules.
  * 
  * @author Guillaume Blondeau
  */
-public abstract class FirewallRule extends Filter {
+public class FirewallFilter extends Filter {
+
+    /** The list of associated {@link FirewallRule}. */
+    protected final List<FirewallRule> rules;
 
     /**
-     * Updates the response, if necessary. It does nothing by default.
+     * Constructor.
      * 
-     * @param request
-     *            The request.
-     * @param response
-     *            the response.
+     * @param context
+     *            The context.
+     * @param rules
+     *            The list of associated {@link FirewallRule}.
      */
-    public void afterHandle(Request request, Response response) {
-
+    public FirewallFilter(Context context, List<FirewallRule> rules) {
+        super(context);
+        this.rules = rules;
     }
 
     /**
-     * Checks the given request. It returns {@link Filter#CONTINUE} by default;
-     * 
-     * @param request
-     *            The request to check.
-     * @param response
-     *            The response to check.
-     * @return {@link Filter#CONTINUE} if the rule is successfully applied,
-     *         {@link Filter#STOP} to block it.
+     * Invokes each {@link FirewallRule#afterHandle(Request, Response)} method.
      */
+    @Override
+    protected void afterHandle(Request request, Response response) {
+        for (FirewallRule rule : rules) {
+            rule.afterHandle(request, response);
+        }
+    }
+
+    /**
+     * Applies each rules to the incoming request.
+     */
+    @Override
     public int beforeHandle(Request request, Response response) {
-        return Filter.CONTINUE;
+        int result = Filter.CONTINUE;
+        
+        for (FirewallRule rule : rules) {
+            int value = rule.beforeHandle(request, response);
+            if (value != Filter.CONTINUE) {
+                return value;
+            }
+            result = value;
+        }
+        
+        return result;
     }
 
 }

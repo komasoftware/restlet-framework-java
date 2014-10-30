@@ -31,34 +31,33 @@
  * Restlet is a registered trademark of Restlet S.A.S.
  */
 
-package org.restlet.engine.header;
+package org.restlet.engine.util;
 
-import org.restlet.data.HeaderName;
-import org.restlet.data.Method;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
- * Header names header writer.
+ * Utilities for Set manipulation
  * 
  * @author Manuel Boillod
  */
-public class HeaderNameWriter extends HeaderWriter<HeaderName> {
+public class SetUtils {
 
+    // [ifndef gwt] method
     /**
-     * Writes a set of header names with a comma separator.
-     * 
-     * @param headerNames
-     *            The set of header names.
-     * @return The formatted set of header names.
+     * Returns a new {@link java.util.HashSet} with the given elements
+     * @param elements
+     *      The elements
+     * @return A new {@link java.util.HashSet} with the given elements
      */
-    public static String write(Set<HeaderName> headerNames) {
-        return new HeaderNameWriter().append(headerNames).toString();
-    }
-
-    @Override
-    public HeaderNameWriter append(HeaderName headerName) {
-        return (HeaderNameWriter) appendToken(headerName.getName());
+    @SafeVarargs
+    public static <E> Set<E> newHashSet(E... elements) {
+        HashSet<E> set = new HashSet<>(elements.length);
+        Collections.addAll(set, elements);
+        return set;
     }
 
 }
