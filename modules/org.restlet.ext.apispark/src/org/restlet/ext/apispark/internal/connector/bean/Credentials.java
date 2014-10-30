@@ -39,6 +39,9 @@ public class Credentials {
 
     private char[] password;
 
+    public Credentials() {
+    }
+
     public Credentials(String username, char[] password) {
         this.username = username;
         this.password = password;

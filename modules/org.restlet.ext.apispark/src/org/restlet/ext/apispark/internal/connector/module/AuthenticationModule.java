@@ -3,6 +3,7 @@ package org.restlet.ext.apispark.internal.connector.module;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import org.restlet.Application;
 import org.restlet.Context;
 import org.restlet.Request;
@@ -209,7 +210,7 @@ public class AuthenticationModule extends ChallengeAuthenticator {
 
                     try {
                         //we have to add secret in cache key because cache loader needs the secret.
-                        UserInfo userInfo = userLoadingCache.get(userIdentifier);
+                        UserInfo userInfo = userLoadingCache.getUnchecked(userIdentifier);
                         if (userInfo == null) {
                             throw new ConnectorException("User could not be null");
                         }
@@ -226,14 +227,16 @@ public class AuthenticationModule extends ChallengeAuthenticator {
                             //set roles on request client info
                             List<Role> securityRoles = new ArrayList<>();
                             Application application = Application.getCurrent();
-                            for (String role : user.getRoles()) {
-                                securityRoles.add(new Role(application, role));
+                            if (user.getRoles() != null) {
+                                for (String role : user.getRoles()) {
+                                    securityRoles.add(new Role(application, role));
+                                }
                             }
                             request.getClientInfo().setRoles(securityRoles);
 
                             result = RESULT_VALID;
                         }
-                    } catch (ExecutionException e) {
+                    } catch (UncheckedExecutionException e) {
                         if (e.getCause() instanceof ResourceException) {
                             //client resource exception (status 401 is normal)
                             ResourceException rex = (ResourceException) e.getCause();
@@ -241,12 +244,10 @@ public class AuthenticationModule extends ChallengeAuthenticator {
                                 response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
                                 result = RESULT_INVALID;
                             } else {
-                                LOGGER.log(Level.SEVERE, "User authentication error for identifier: " + identifier + ". Client resource error:", rex);
-                                throw rex;
+                                throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Agent service error during user authentication of user: " + identifier, rex);
                             }
                         } else {
-                            LOGGER.log(Level.SEVERE, "User authentication error for identifier: " + identifier + ". Unexpected error:", e);
-                            throw new ConnectorException(e);
+                            throw new ConnectorException("Unexpected error during user authentication error of user: " + identifier, e);
                         }
                     }
                 }

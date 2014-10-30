@@ -97,14 +97,4 @@ public class ConnectorAgentFilter extends Filter {
         agentModulesConfigurer.setNext(next);
     }
 
-    //TODO test
-    public static void main(String[] args) {
-        ConnectorAgentConfig connectorAgentConfig = new ConnectorAgentConfig()
-                .setApisparkCellId(2792)
-                .setApisparkCellVersion(1)
-                .setApisparkUsername("330162c5-6edc-4c17-b8a4-0a2e26da98ca")
-                .setApisparkSecretkey("a343d2f5-8847-4dc8-82ec-4c92faf8590c");
-
-        ConnectorAgentFilter connectorAgentFilter = new ConnectorAgentFilter(connectorAgentConfig);
-    }
 }

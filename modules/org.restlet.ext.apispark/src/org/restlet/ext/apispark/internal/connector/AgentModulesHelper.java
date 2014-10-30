@@ -43,7 +43,7 @@ public class AgentModulesHelper {
             filters.add(new AuthenticationModule(connectorAgentConfig, modulesSettings, context));
         }
         if (modulesSettings.isAuthorizationModuleEnabled()) {
-            if (modulesSettings.isAuthenticationModuleEnabled()) {
+            if (!modulesSettings.isAuthenticationModuleEnabled()) {
                 throw new ConnectorConfigurationException("Authorization module requires Authentication module which is not enabled");
             }
             LOGGER.info("Add authorization module");

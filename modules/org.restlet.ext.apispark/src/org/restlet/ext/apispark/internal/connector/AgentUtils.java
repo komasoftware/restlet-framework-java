@@ -30,15 +30,14 @@ public abstract class AgentUtils {
                                                     ModulesSettings modulesSettings,
                                                              Class<T> resourceClass,
                                                              String resourcePath) {
-        //TODO externalize domain or allow to override in for test pupropse
-        String path = "https://apispark.restlet.com/agent/" + resourcePath;
+        String path = connectorAgentConfig.getAgentServicePath() + resourcePath;
 
         ClientResource clientResource = new ClientResource(path);
 
         //add authentication scheme
         clientResource.setChallengeResponse(ChallengeScheme.HTTP_BASIC,
-                connectorAgentConfig.getApisparkUsername(),
-                connectorAgentConfig.getApisparkSecretkey());
+                connectorAgentConfig.getAgentUsername(),
+                connectorAgentConfig.getAgentSecretKey());
 
         //send connector agent version to apispark in headers
         Series<Header> headers = clientResource.getRequest().getHeaders();
@@ -50,8 +49,8 @@ public abstract class AgentUtils {
         }
 
         //send cellId and cellVersion in queryParams
-        clientResource.setQueryValue("cellId", connectorAgentConfig.getApisparkCellId().toString());
-        clientResource.setQueryValue("cellVersion", connectorAgentConfig.getApisparkCellVersion().toString());
+        clientResource.setQueryValue("cellId", connectorAgentConfig.getCellId().toString());
+        clientResource.setQueryValue("cellVersion", connectorAgentConfig.getCellVersion().toString());
 
 
         return clientResource.wrap(resourceClass);

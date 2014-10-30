@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class OperationAuthorization {
 
-    Method method;
+    String method;
 
     /**
      *  The URI path template that must match the relative part of the
@@ -19,11 +19,20 @@ public class OperationAuthorization {
 
     List<String> groupsAllowed;
 
-    public Method getMethod() {
+    public OperationAuthorization() {
+    }
+
+    public OperationAuthorization(String method, String pathTemplate, List<String> groupsAllowed) {
+        this.method = method;
+        this.pathTemplate = pathTemplate;
+        this.groupsAllowed = groupsAllowed;
+    }
+
+    public String getMethod() {
         return method;
     }
 
-    public void setMethod(Method method) {
+    public void setMethod(String method) {
         this.method = method;
     }
 
