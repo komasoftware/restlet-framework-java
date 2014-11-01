@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 /**
  * @author Manuel Boillod
  */
-public class ConnectorAgentServiceTest extends RestletTestCase  {
+public class ConnectorAgentServiceTestCase extends RestletTestCase  {
 
     private static Logger logger = Context.getCurrentLogger();
 

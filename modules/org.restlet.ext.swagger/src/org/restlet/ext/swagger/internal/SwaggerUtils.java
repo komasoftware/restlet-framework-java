@@ -34,9 +34,8 @@
 package org.restlet.ext.swagger.internal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import scala.actors.threadpool.Arrays;
 
 /**
  * Swagger tooling class.

@@ -1,31 +1,60 @@
-package org.restlet.engine.cors;
+/**
+ * Copyright 2005-2014 Restlet
+ * 
+ * The contents of this file are subject to the terms of one of the following
+ * open source licenses: Apache 2.0 or LGPL 3.0 or LGPL 2.1 or CDDL 1.0 or EPL
+ * 1.0 (the "Licenses"). You can select the license that you prefer but you may
+ * not use this file except in compliance with one of these Licenses.
+ * 
+ * You can obtain a copy of the Apache 2.0 license at
+ * http://www.opensource.org/licenses/apache-2.0
+ * 
+ * You can obtain a copy of the LGPL 3.0 license at
+ * http://www.opensource.org/licenses/lgpl-3.0
+ * 
+ * You can obtain a copy of the LGPL 2.1 license at
+ * http://www.opensource.org/licenses/lgpl-2.1
+ * 
+ * You can obtain a copy of the CDDL 1.0 license at
+ * http://www.opensource.org/licenses/cddl1
+ * 
+ * You can obtain a copy of the EPL 1.0 license at
+ * http://www.opensource.org/licenses/eclipse-1.0
+ * 
+ * See the Licenses for the specific language governing permissions and
+ * limitations under the Licenses.
+ * 
+ * Alternatively, you can obtain a royalty free commercial license with less
+ * limitations, transferable or non-transferable, directly at
+ * http://restlet.com/products/restlet-framework
+ * 
+ * Restlet is a registered trademark of Restlet S.A.S.
+ */
+
+package org.restlet.service;
 
 import java.util.Set;
 
 import org.restlet.Context;
-import org.restlet.Request;
-import org.restlet.Response;
-import org.restlet.Restlet;
+import org.restlet.engine.cors.CorsFilter;
 import org.restlet.engine.util.SetUtils;
 import org.restlet.routing.Filter;
 
 /**
- * Filter that helps support CORS requests. This filter lets the target
- * resources specify the allowed methods.
+ * Application service that adds support of CORS. This service lets the target
+ * resource specifies the allowed methods.
  * 
  * Example:
  * 
  * <pre>
- * Router router = new Router(getContext());
- * 
- * CorsFilter corsFilter = new CorsFilter(getContext(), router).setAllowedOrigins(
- *         new HashSet(Arrays.asList(&quot;http://server.com&quot;))).setAllowedCredentials(
- *         true);
+ * CorsService corsService = new CorsService();
+ * corsService.setAllowedOrigins(new HashSet(Arrays.asList(&quot;http://server.com&quot;)));
+ * corsService.setAllowedCredentials(true);
  * </pre>
  * 
  * @author Manuel Boillod
  */
-public class CorsFilter extends Filter {
+public class CorsService extends Service {
 
     /**
      * If true, copies the value of 'Access-Control-Request-Headers' request
@@ -48,53 +77,33 @@ public class CorsFilter extends Filter {
     /** The value of 'Access-Control-Allow-Origin' header. Default is '*'. */
     public Set<String> allowedOrigins = SetUtils.newHashSet("*");
 
-    /** Helper for generating CORS response. */
-    private CorsResponseHelper corsResponseHelper;
-
     /** The value of 'Access-Control-Expose-Headers' response header. */
     public Set<String> exposedHeaders = null;
 
     /**
      * Constructor.
      */
-    public CorsFilter() {
-        this(null);
+    public CorsService() {
+        this(true);
     }
 
     /**
      * Constructor.
      * 
-     * @param context
-     *            The context.
+     * @param enabled
+     *            True if the service has been enabled.
      */
-    public CorsFilter(Context context) {
-        super(context, null);
+    public CorsService(boolean enabled) {
+        super(enabled);
     }
 
-    /**
-     * Constructor.
-     * 
-     * @param context
-     *            The context.
-     * @param next
-     *            The next Restlet.
-     */
-    public CorsFilter(Context context, Restlet next) {
-        super(context, next);
-    }
-
-    /**
-     * Add CORS headers to response
-     * 
-     * @param request
-     *            The request to handle.
-     * @param response
-     *            The response
-     */
     @Override
-    protected void afterHandle(Request request, Response response) {
-        CorsResponseHelper corsResponseHelper = getCorsResponseHelper();
-        corsResponseHelper.addCorsResponseHeaders(request, response);
+    public Filter createInboundFilter(Context context) {
+        return new CorsFilter().setAllowedCredentials(allowedCredentials)
+                .setAllowedOrigins(allowedOrigins)
+                .setAllowAllRequestedHeaders(allowAllRequestedHeaders)
+                .setAllowedHeaders(allowedHeaders)
+                .setExposedHeaders(exposedHeaders);
     }
 
     /**
@@ -120,22 +129,6 @@ public class CorsFilter extends Filter {
      */
     public Set<String> getAllowedOrigins() {
         return allowedOrigins;
-    }
-
-    /**
-     * Returns a lazy-initialized instance of
-     * {@link org.restlet.engine.cors.CorsResponseHelper}.
-     */
-    protected CorsResponseHelper getCorsResponseHelper() {
-        if (corsResponseHelper == null) {
-            corsResponseHelper = new CorsResponseHelper()
-                    .setAllowedCredentials(allowedCredentials)
-                    .setAllowedOrigins(allowedOrigins)
-                    .setAllowAllRequestedHeaders(allowAllRequestedHeaders)
-                    .setAllowedHeaders(allowedHeaders)
-                    .setExposedHeaders(exposedHeaders);
-        }
-        return corsResponseHelper;
     }
 
     /**
@@ -181,10 +174,8 @@ public class CorsFilter extends Filter {
      *            response header. If false, use {@link #allowedHeaders}.
      * @return Itself for chaining methods calls.
      */
-    public CorsFilter setAllowAllRequestedHeaders(
-            boolean allowAllRequestedHeaders) {
+    public void setAllowAllRequestedHeaders(boolean allowAllRequestedHeaders) {
         this.allowAllRequestedHeaders = allowAllRequestedHeaders;
-        return this;
     }
 
     /**
@@ -194,9 +185,8 @@ public class CorsFilter extends Filter {
      *            True to add the 'Access-Control-Allow-Credentials' header.
      * @return Itself for chaining methods calls.
      */
-    public CorsFilter setAllowedCredentials(boolean allowedCredentials) {
+    public void setAllowedCredentials(boolean allowedCredentials) {
         this.allowedCredentials = allowedCredentials;
-        return this;
     }
 
     /**
@@ -207,9 +197,8 @@ public class CorsFilter extends Filter {
      *            The value of 'Access-Control-Allow-Headers' response header.
      * @return Itself for chaining methods calls.
      */
-    public CorsFilter setAllowedHeaders(Set<String> allowedHeaders) {
+    public void setAllowedHeaders(Set<String> allowedHeaders) {
         this.allowedHeaders = allowedHeaders;
-        return this;
     }
 
     /**
@@ -219,9 +208,8 @@ public class CorsFilter extends Filter {
      *            The value of 'Access-Control-Allow-Origin' header.
      * @return Itself for chaining methods calls.
      */
-    public CorsFilter setAllowedOrigins(Set<String> allowedOrigins) {
+    public void setAllowedOrigins(Set<String> allowedOrigins) {
         this.allowedOrigins = allowedOrigins;
-        return this;
     }
 
     /**
@@ -231,8 +219,7 @@ public class CorsFilter extends Filter {
      *            The value of 'Access-Control-Expose-Headers' response header.
      * @return Itself for chaining methods calls.
      */
-    public CorsFilter setExposedHeaders(Set<String> exposedHeaders) {
+    public void setExposedHeaders(Set<String> exposedHeaders) {
         this.exposedHeaders = exposedHeaders;
-        return this;
     }
 }
