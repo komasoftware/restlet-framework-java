@@ -207,7 +207,7 @@ public class ResourceCollector {
                     response.setMessage("Status " + statusCode);
 
                     Class<?> outputPayloadType =
-                        statusAnnotation.isSerializeProperties() ?
+                        statusAnnotation.isSerializable() ?
                          thrownClass : StatusRepresentation.class;
 
                     RepresentationCollector.addRepresentation(collectInfo,
