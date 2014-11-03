@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.restlet.Context;
 import org.restlet.ext.apispark.internal.firewall.FirewallFilter;
@@ -116,14 +117,17 @@ public class FirewallService extends Service {
      * 
      * @param period
      *            The period of time.
+     * @param periodUnit
+     *            Period time unit associated to the {@link FirewallCounterRule}.
      * @param limit
      *            The maximum number of requests allowed by host domain for the
      *            given period of time.
      * @return The associated rule.
      */
-    public void addHostDomainPeriodicCounter(int period, int limit) {
+    public void addHostDomainPeriodicCounter(int period, TimeUnit periodUnit,
+                                             int limit) {
         FirewallCounterRule rule = new PeriodicFirewallCounterRule(period,
-                new HostDomainCountingPolicy());
+                periodUnit, new HostDomainCountingPolicy());
         rule.addHandler(new BlockingHandler(new UniqueLimitPolicy(limit)));
     }
 
@@ -168,12 +172,14 @@ public class FirewallService extends Service {
      * 
      * @param period
      *            The period of time.
+     * @param periodUnit
+     *            Period time unit associated to the {@link FirewallCounterRule}.
      * @param limit
      *            The maximum number of accepted requests for a period of time.
      * @return The associated rule.
      */
-    public void addIpAddressesPeriodicCounter(int period, int limit) {
-        FirewallCounterRule rule = new PeriodicFirewallCounterRule(period,
+    public void addIpAddressesPeriodicCounter(int period, TimeUnit periodUnit,  int limit) {
+        FirewallCounterRule rule = new PeriodicFirewallCounterRule(period, periodUnit,
                 new IpAddressCountingPolicy());
         rule.addHandler(new BlockingHandler(new UniqueLimitPolicy(limit)));
         add(rule);
@@ -239,14 +245,16 @@ public class FirewallService extends Service {
      * 
      * @param period
      *            The period of time.
+     * @param periodUnit
+     *            Period time unit associated to the {@link FirewallCounterRule}.
      * @param limitsPerRole
      *            The limit assigned per role's name.
      * 
      * @return The associated rule.
      */
-    public void addRolesPeriodicCounter(int period,
-            Map<String, Integer> limitsPerRole) {
-        addRolesPeriodicCounter(period, limitsPerRole, 0);
+    public void addRolesPeriodicCounter(int period, TimeUnit periodUnit,
+                                        Map<String, Integer> limitsPerRole) {
+        addRolesPeriodicCounter(period, periodUnit, limitsPerRole, 0);
     }
 
     /**
@@ -256,6 +264,8 @@ public class FirewallService extends Service {
      * 
      * @param period
      *            The period of time.
+     * @param periodUnit
+     *            Period time unit associated to the {@link FirewallCounterRule}.
      * @param limitsPerRole
      *            The limit assigned per role's name.
      * @param defaultLimit
@@ -263,10 +273,10 @@ public class FirewallService extends Service {
      *            assigned role.
      * @return The associated rule.
      */
-    public void addRolesPeriodicCounter(int period,
-            Map<String, Integer> limitsPerRole, int defaultLimit) {
+    public void addRolesPeriodicCounter(int period, TimeUnit periodUnit,
+                                        Map<String, Integer> limitsPerRole, int defaultLimit) {
         FirewallCounterRule rule = new PeriodicFirewallCounterRule(period,
-                new UserCountingPolicy());
+                periodUnit, new UserCountingPolicy());
         rule.addHandler(new BlockingHandler(new RoleLimitPolicy(limitsPerRole,
                 defaultLimit)));
         add(rule);

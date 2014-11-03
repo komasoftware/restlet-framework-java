@@ -68,7 +68,7 @@ public class FirewallFilter extends Filter {
      * Invokes each {@link FirewallRule#afterHandle(Request, Response)} method.
      */
     @Override
-    protected void afterHandle(Request request, Response response) {
+    public void afterHandle(Request request, Response response) {
         for (FirewallRule rule : rules) {
             rule.afterHandle(request, response);
         }
