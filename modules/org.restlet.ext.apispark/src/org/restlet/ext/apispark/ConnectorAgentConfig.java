@@ -7,7 +7,7 @@ public class ConnectorAgentConfig {
 
     public static final String AGENT_VERSION = "1.0";
 
-    public static final String DEFAULT_AGENT_SERVICE_PATH = "https://apispark.restlet.com/agent/";
+    public static final String DEFAULT_AGENT_SERVICE_PATH = "https://apispark.restlet.com";
 
     private Integer cellId;
     private Integer cellVersion;

@@ -18,7 +18,7 @@ import org.restlet.ext.apispark.internal.connector.bean.Credentials;
 import org.restlet.ext.apispark.internal.connector.bean.OperationAuthorization;
 import org.restlet.ext.apispark.internal.connector.bean.OperationsAuthorization;
 import org.restlet.ext.apispark.internal.connector.bean.User;
-import org.restlet.ext.apispark.internal.connector.config.ModulesSettings;
+import org.restlet.ext.apispark.internal.connector.bean.ModulesSettings;
 import org.restlet.ext.apispark.internal.connector.module.AuthenticationModule;
 import org.restlet.ext.apispark.internal.connector.module.AuthorizationModule;
 import org.restlet.ext.apispark.internal.connector.module.ModulesSettingsModule;
@@ -34,7 +34,6 @@ import org.restlet.security.MapVerifier;
 import org.restlet.test.RestletTestCase;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -69,8 +68,9 @@ public class ConnectorAgentServiceTestCase extends RestletTestCase  {
     public static final String SERVER_ERROR_USERNAME = "userFail";
 
     private static final int CELL_ID = 123;
-
     private static final int CELL_VERSION = 2;
+    private static final String ROOT_PATH = "/agent/cells/" + CELL_ID + "/versions/" + CELL_VERSION;
+
 
     private Component agentServiceComponent;
 
@@ -108,9 +108,9 @@ public class ConnectorAgentServiceTestCase extends RestletTestCase  {
                 authenticator.setVerifier(mapVerifier);
 
                 Router router = new Router();
-                router.attach(ModulesSettingsModule.MODULE_PATH, MockModulesSettingsServerResource.class);
-                router.attach(AuthenticationModule.AUTHENTICATE_PATH, MockAuthenticationAuthenticateServerResource.class);
-                router.attach(AuthorizationModule.AUTHORIZATION_OPERATIONS_PATH, MockAuthorizationOperationsServerResource.class);
+                router.attach(ROOT_PATH + ModulesSettingsModule.MODULE_PATH, MockModulesSettingsServerResource.class);
+                router.attach(ROOT_PATH + AuthenticationModule.AUTHENTICATE_PATH, MockAuthenticationAuthenticateServerResource.class);
+                router.attach(ROOT_PATH + AuthorizationModule.OPERATIONS_AUTHORIZATIONS_PATH, MockAuthorizationOperationsServerResource.class);
                 authenticator.setNext(router);
 
                 return authenticator;
@@ -332,7 +332,7 @@ public class ConnectorAgentServiceTestCase extends RestletTestCase  {
             if (VALID_USERNAME.equals(credentials.getUsername()) && VALID_PASSWORD.equals(new String(credentials.getPassword()))) {
                 User user = new User();
                 user.setUsername(VALID_USERNAME);
-                user.setRoles(Arrays.asList("user", "dev"));
+                user.setGroups(Arrays.asList("user", "dev"));
                 return user;
             }
             if (SERVER_ERROR_USERNAME.equals(credentials.getUsername())) {

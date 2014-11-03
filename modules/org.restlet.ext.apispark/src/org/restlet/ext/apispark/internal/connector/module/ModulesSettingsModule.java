@@ -2,7 +2,7 @@ package org.restlet.ext.apispark.internal.connector.module;
 
 import org.restlet.ext.apispark.ConnectorAgentConfig;
 import org.restlet.ext.apispark.internal.connector.AgentUtils;
-import org.restlet.ext.apispark.internal.connector.config.ModulesSettings;
+import org.restlet.ext.apispark.internal.connector.bean.ModulesSettings;
 import org.restlet.ext.apispark.internal.connector.resource.ModulesSettingsResource;
 
 /**

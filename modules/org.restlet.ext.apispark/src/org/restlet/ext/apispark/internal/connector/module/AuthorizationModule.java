@@ -9,7 +9,7 @@ import org.restlet.ext.apispark.ConnectorAgentConfig;
 import org.restlet.ext.apispark.internal.connector.AgentUtils;
 import org.restlet.ext.apispark.internal.connector.ConnectorConfigurationException;
 import org.restlet.ext.apispark.internal.connector.bean.OperationAuthorization;
-import org.restlet.ext.apispark.internal.connector.config.ModulesSettings;
+import org.restlet.ext.apispark.internal.connector.bean.ModulesSettings;
 import org.restlet.ext.apispark.internal.connector.resource.AuthorizationOperationsResource;
 import org.restlet.routing.Filter;
 import org.restlet.routing.Router;
@@ -30,7 +30,7 @@ public class AuthorizationModule extends Filter {
             .getLogger(AuthorizationModule.class.getName());
 
     public static final String MODULE_PATH = "/authorization";
-    public static final String AUTHORIZATION_OPERATIONS_PATH = MODULE_PATH + "/operations";
+    public static final String OPERATIONS_AUTHORIZATIONS_PATH = MODULE_PATH + "/operations";
 
     /**
      * Router is used for finding the Operation corresponding to a incoming request.
@@ -60,12 +60,12 @@ public class AuthorizationModule extends Filter {
     public AuthorizationModule(ConnectorAgentConfig connectorAgentConfig, ModulesSettings modulesSettings, Context context) {
         super(context);
 
-        AuthorizationOperationsResource authorizationOperationsResource = AgentUtils.getConfiguredClientResource(
-                connectorAgentConfig, modulesSettings, AuthorizationOperationsResource.class, AUTHORIZATION_OPERATIONS_PATH);
+        AuthorizationOperationsResource authorizationOperationsClientResource = AgentUtils.getConfiguredClientResource(
+                connectorAgentConfig, modulesSettings, AuthorizationOperationsResource.class, OPERATIONS_AUTHORIZATIONS_PATH);
 
         List<OperationAuthorization> operationAuthorizations;
         try {
-            operationAuthorizations = authorizationOperationsResource.getAuthorizations();
+            operationAuthorizations = authorizationOperationsClientResource.getAuthorizations();
         } catch (Exception e) {
             throw new ConnectorConfigurationException("Could not get authorization module configuration from APISpark connector service", e);
         }

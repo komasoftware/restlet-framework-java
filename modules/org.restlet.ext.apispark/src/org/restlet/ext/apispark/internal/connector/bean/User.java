@@ -45,7 +45,7 @@ public class User {
 
     private String lastName;
 
-    private List<String> roles;
+    private List<String> groups;
 
     public String getUsername() {
         return username;
@@ -79,11 +79,11 @@ public class User {
         this.lastName = lastName;
     }
 
-    public List<String> getRoles() {
-        return roles;
+    public List<String> getGroups() {
+        return groups;
     }
 
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
+    public void setGroups(List<String> groups) {
+        this.groups = groups;
     }
 }

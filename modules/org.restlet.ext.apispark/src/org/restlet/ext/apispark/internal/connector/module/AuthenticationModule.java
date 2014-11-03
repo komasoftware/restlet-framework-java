@@ -15,8 +15,8 @@ import org.restlet.ext.apispark.internal.connector.AgentUtils;
 import org.restlet.ext.apispark.internal.connector.ConnectorException;
 import org.restlet.ext.apispark.internal.connector.bean.Credentials;
 import org.restlet.ext.apispark.internal.connector.bean.User;
-import org.restlet.ext.apispark.internal.connector.config.AuthenticationSettings;
-import org.restlet.ext.apispark.internal.connector.config.ModulesSettings;
+import org.restlet.ext.apispark.internal.connector.bean.AuthenticationSettings;
+import org.restlet.ext.apispark.internal.connector.bean.ModulesSettings;
 import org.restlet.ext.apispark.internal.connector.resource.AuthenticationAuthenticateResource;
 import org.restlet.resource.ResourceException;
 import org.restlet.security.ChallengeAuthenticator;
@@ -27,9 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -227,8 +225,8 @@ public class AuthenticationModule extends ChallengeAuthenticator {
                             //set roles on request client info
                             List<Role> securityRoles = new ArrayList<>();
                             Application application = Application.getCurrent();
-                            if (user.getRoles() != null) {
-                                for (String role : user.getRoles()) {
+                            if (user.getGroups() != null) {
+                                for (String role : user.getGroups()) {
                                     securityRoles.add(new Role(application, role));
                                 }
                             }

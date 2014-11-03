@@ -2,7 +2,7 @@ package org.restlet.ext.apispark.internal.connector;
 
 import org.restlet.Context;
 import org.restlet.ext.apispark.ConnectorAgentConfig;
-import org.restlet.ext.apispark.internal.connector.config.ModulesSettings;
+import org.restlet.ext.apispark.internal.connector.bean.ModulesSettings;
 import org.restlet.ext.apispark.internal.connector.module.AnalyticsModule;
 import org.restlet.ext.apispark.internal.connector.module.AuthenticationModule;
 import org.restlet.ext.apispark.internal.connector.module.AuthorizationModule;

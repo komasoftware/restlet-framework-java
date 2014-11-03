@@ -5,6 +5,6 @@ import org.restlet.resource.Get;
 
 public interface AuthorizationOperationsResource {
 
-    @Get("?cellId&cellVersion")
+    @Get
     public OperationsAuthorization getAuthorizations();
 }

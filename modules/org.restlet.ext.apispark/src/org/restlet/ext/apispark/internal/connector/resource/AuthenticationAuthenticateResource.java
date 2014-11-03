@@ -20,6 +20,6 @@ public interface AuthenticationAuthenticateResource {
      *      <li>401 if the user is not authenticated or does not exist</li>
      *      </ul>
      */
-    @Post("?cellId&cellVersion")
+    @Post
     public User authenticate(Credentials credentials);
 }

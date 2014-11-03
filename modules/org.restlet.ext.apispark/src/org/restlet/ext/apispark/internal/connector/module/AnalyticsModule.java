@@ -2,20 +2,8 @@ package org.restlet.ext.apispark.internal.connector.module;
 
 import org.restlet.Context;
 import org.restlet.ext.apispark.ConnectorAgentConfig;
-import org.restlet.ext.apispark.internal.connector.config.ModulesSettings;
-import org.restlet.resource.ClientResource;
-import org.restlet.resource.ResourceException;
+import org.restlet.ext.apispark.internal.connector.bean.ModulesSettings;
 import org.restlet.routing.Filter;
-
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Manuel Boillod

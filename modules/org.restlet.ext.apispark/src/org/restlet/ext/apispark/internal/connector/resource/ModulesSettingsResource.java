@@ -1,6 +1,6 @@
 package org.restlet.ext.apispark.internal.connector.resource;
 
-import org.restlet.ext.apispark.internal.connector.config.ModulesSettings;
+import org.restlet.ext.apispark.internal.connector.bean.ModulesSettings;
 import org.restlet.resource.Get;
 
 /**
@@ -13,6 +13,6 @@ public interface ModulesSettingsResource {
     /**
      * Retrieve the modules settings from apispark connector cell.
      */
-    @Get("?cellId&cellVersion")
+    @Get
     ModulesSettings getSettings();
 }

@@ -37,7 +37,7 @@ import org.restlet.Context;
 import org.restlet.Restlet;
 import org.restlet.ext.apispark.internal.connector.AgentModulesConfigurer;
 import org.restlet.ext.apispark.internal.connector.module.ModulesSettingsModule;
-import org.restlet.ext.apispark.internal.connector.config.ModulesSettings;
+import org.restlet.ext.apispark.internal.connector.bean.ModulesSettings;
 import org.restlet.ext.apispark.internal.connector.AgentModulesHelper;
 import org.restlet.routing.Filter;
 

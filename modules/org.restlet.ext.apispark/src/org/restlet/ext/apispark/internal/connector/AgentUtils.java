@@ -3,7 +3,7 @@ package org.restlet.ext.apispark.internal.connector;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Header;
 import org.restlet.ext.apispark.ConnectorAgentConfig;
-import org.restlet.ext.apispark.internal.connector.config.ModulesSettings;
+import org.restlet.ext.apispark.internal.connector.bean.ModulesSettings;
 import org.restlet.resource.ClientResource;
 import org.restlet.util.Series;
 
@@ -30,7 +30,12 @@ public abstract class AgentUtils {
                                                     ModulesSettings modulesSettings,
                                                              Class<T> resourceClass,
                                                              String resourcePath) {
-        String path = connectorAgentConfig.getAgentServicePath() + resourcePath;
+
+        String path = connectorAgentConfig.getAgentServicePath() +
+                "/agent" +
+                "/cells/" + connectorAgentConfig.getCellId() +
+                "/versions/" + connectorAgentConfig.getCellVersion() +
+                resourcePath;
 
         ClientResource clientResource = new ClientResource(path);
 
@@ -47,11 +52,6 @@ public abstract class AgentUtils {
         if (modulesSettings != null) {
             headers.add(ConnectorConstants.REQUEST_HEADER_CONNECTOR_CELL_REVISION, modulesSettings.getCellRevision());
         }
-
-        //send cellId and cellVersion in queryParams
-        clientResource.setQueryValue("cellId", connectorAgentConfig.getCellId().toString());
-        clientResource.setQueryValue("cellVersion", connectorAgentConfig.getCellVersion().toString());
-
 
         return clientResource.wrap(resourceClass);
     }

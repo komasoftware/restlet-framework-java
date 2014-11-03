@@ -1,4 +1,4 @@
-package org.restlet.ext.apispark.internal.connector.config;
+package org.restlet.ext.apispark.internal.connector.bean;
 
 import java.util.concurrent.TimeUnit;
 
