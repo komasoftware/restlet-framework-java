@@ -1,5 +1,14 @@
 #!/bin/bash
 
+
+#run tests
+#ant -Deditions=jse -Dverify=true -Djavadoc=false -Dmaven=false -Dnsis=false -Dpackage=false -Declipse-pde=true -Declipse-pde-optional-dependencies=true -Dp2=true
+
+
+#build OSGI
+#ant -Deditions=osgi -Dverify=false -Djavadoc=false -Dmaven=false -Dnsis=false -Dpackage=false -Declipse-pde=true -Declipse-pde-optional-dependencies=true -Dp2=true
+
+
 RF=~/workspaces/restlet/restlet-framework-java
 RF_BUILD=$RF/build/editions/osgi/dist/p2/restlet-osgi-2.3snapshot/plugins
 AS=~/workspaces/apispark/apispark
