@@ -64,31 +64,35 @@ public class FirewallModule extends Filter {
     }
 
     private void addIpFilterRules(FirewallSettings firewallSettings, FirewallService firewallService) {
-        for (FirewallIpFilter ipFilter : firewallSettings.getIpFilters()) {
-            if (ipFilter.isWhiteList()) {
-                firewallService.addIpAddressesWhiteList(ipFilter.getIps());
-            } else {
-                firewallService.addIpAddressesBlackList(ipFilter.getIps());
+        if (firewallSettings.getIpFilters() != null) {
+            for (FirewallIpFilter ipFilter : firewallSettings.getIpFilters()) {
+                if (ipFilter.isWhiteList()) {
+                    firewallService.addIpAddressesWhiteList(ipFilter.getIps());
+                } else {
+                    firewallService.addIpAddressesBlackList(ipFilter.getIps());
+                }
             }
         }
     }
 
     private void addRateLimitationRules(FirewallSettings firewallSettings, FirewallService firewallService) {
-        List<FirewallRateLimit> rateLimits = firewallSettings.getRateLimits();
-        Map<Integer, Collection<FirewallRateLimit>> rateLimitsByPeriod = sortRateLimitsByPeriod(rateLimits);
-        for (Integer period : rateLimitsByPeriod.keySet()) {
-            Map<String, Integer> limitsPerRole = new HashMap<>();
-            int defaultRateLimit = Integer.MAX_VALUE;
+        if (firewallSettings.getRateLimits() != null) {
+            List<FirewallRateLimit> rateLimits = firewallSettings.getRateLimits();
+            Map<Integer, Collection<FirewallRateLimit>> rateLimitsByPeriod = sortRateLimitsByPeriod(rateLimits);
+            for (Integer period : rateLimitsByPeriod.keySet()) {
+                Map<String, Integer> limitsPerRole = new HashMap<>();
+                int defaultRateLimit = Integer.MAX_VALUE;
 
-            for (FirewallRateLimit firewallRateLimit : rateLimitsByPeriod.get(period)) {
-                if (firewallRateLimit.isDefaultRateLimit()) {
-                    defaultRateLimit = firewallRateLimit.getRateLimit();
-                } else {
-                    limitsPerRole.put(firewallRateLimit.getGroup(), firewallRateLimit.getRateLimit());
+                for (FirewallRateLimit firewallRateLimit : rateLimitsByPeriod.get(period)) {
+                    if (firewallRateLimit.isDefaultRateLimit()) {
+                        defaultRateLimit = firewallRateLimit.getRateLimit();
+                    } else {
+                        limitsPerRole.put(firewallRateLimit.getGroup(), firewallRateLimit.getRateLimit());
+                    }
                 }
-            }
 
-            firewallService.addRolesPeriodicCounter(period, TimeUnit.SECONDS, limitsPerRole, defaultRateLimit);
+                firewallService.addRolesPeriodicCounter(period, TimeUnit.SECONDS, limitsPerRole, defaultRateLimit);
+            }
         }
     }
 

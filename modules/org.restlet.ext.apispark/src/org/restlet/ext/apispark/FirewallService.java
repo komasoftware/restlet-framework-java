@@ -47,6 +47,7 @@ import org.restlet.ext.apispark.internal.firewall.handler.policy.RoleLimitPolicy
 import org.restlet.ext.apispark.internal.firewall.handler.policy.UniqueLimitPolicy;
 import org.restlet.ext.apispark.internal.firewall.rule.ConcurrentFirewallCounterRule;
 import org.restlet.ext.apispark.internal.firewall.rule.FirewallCounterRule;
+import org.restlet.ext.apispark.internal.firewall.rule.FirewallIpFilteringRule;
 import org.restlet.ext.apispark.internal.firewall.rule.FirewallRule;
 import org.restlet.ext.apispark.internal.firewall.rule.PeriodicFirewallCounterRule;
 import org.restlet.ext.apispark.internal.firewall.rule.policy.HostDomainCountingPolicy;
@@ -133,21 +134,13 @@ public class FirewallService extends Service {
 
     /**
      * Returns a rule that forbids access to the given set of IP addresses.
-     * 
+     *
      * @param blackList
      *            The list of rejected IP addresses.
      * @return The associated rule.
      */
     public void addIpAddressesBlackList(List<String> blackList) {
-        FirewallCounterRule rule = new ConcurrentFirewallCounterRule(
-                new IpAddressCountingPolicy());
-        Map<String, Integer> map = new HashMap<String, Integer>();
-        for (String ip : blackList) {
-            map.put(ip, 0);
-        }
-        rule.addHandler(new BlockingHandler(new PerValueLimitPolicy(map,
-                Integer.MAX_VALUE)));
-        add(rule);
+        add(new FirewallIpFilteringRule(blackList, false));
     }
 
     /**
@@ -187,20 +180,14 @@ public class FirewallService extends Service {
 
     /**
      * Returns a rule that restricts access to the given set of IP addresses.
-     * 
+     *
      * @param whiteList
      *            The list of accepted IP addresses.
      * @return The associated rule.
      */
     public void addIpAddressesWhiteList(List<String> whiteList) {
-        FirewallCounterRule rule = new ConcurrentFirewallCounterRule(
-                new IpAddressCountingPolicy());
-        Map<String, Integer> map = new HashMap<String, Integer>();
-        for (String ip : whiteList) {
-            map.put(ip, Integer.MAX_VALUE);
-        }
-        rule.addHandler(new BlockingHandler(new PerValueLimitPolicy(map, 0)));
-        add(rule);
+        add(new FirewallIpFilteringRule(whiteList, true));
+
     }
 
     /**

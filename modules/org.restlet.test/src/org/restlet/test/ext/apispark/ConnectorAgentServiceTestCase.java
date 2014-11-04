@@ -15,15 +15,20 @@ import org.restlet.data.Status;
 import org.restlet.ext.apispark.ConnectorAgentConfig;
 import org.restlet.ext.apispark.ConnectorAgentService;
 import org.restlet.ext.apispark.internal.connector.bean.Credentials;
+import org.restlet.ext.apispark.internal.connector.bean.FirewallIpFilter;
+import org.restlet.ext.apispark.internal.connector.bean.FirewallRateLimit;
+import org.restlet.ext.apispark.internal.connector.bean.FirewallSettings;
 import org.restlet.ext.apispark.internal.connector.bean.OperationAuthorization;
 import org.restlet.ext.apispark.internal.connector.bean.OperationsAuthorization;
 import org.restlet.ext.apispark.internal.connector.bean.User;
 import org.restlet.ext.apispark.internal.connector.bean.ModulesSettings;
 import org.restlet.ext.apispark.internal.connector.module.AuthenticationModule;
 import org.restlet.ext.apispark.internal.connector.module.AuthorizationModule;
+import org.restlet.ext.apispark.internal.connector.module.FirewallModule;
 import org.restlet.ext.apispark.internal.connector.module.ModulesSettingsModule;
 import org.restlet.ext.apispark.internal.connector.resource.AuthenticationAuthenticateResource;
 import org.restlet.ext.apispark.internal.connector.resource.AuthorizationOperationsResource;
+import org.restlet.ext.apispark.internal.connector.resource.FirewallSettingsResource;
 import org.restlet.ext.apispark.internal.connector.resource.ModulesSettingsResource;
 import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;
@@ -34,6 +39,7 @@ import org.restlet.security.MapVerifier;
 import org.restlet.test.RestletTestCase;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 /**
@@ -82,6 +88,8 @@ public class ConnectorAgentServiceTestCase extends RestletTestCase  {
         startAgentService();
         MockModulesSettingsServerResource.MODULES_SETTINGS = new ModulesSettings();
         MockModulesSettingsServerResource.GET_SETTINGS_COUNT = 0;
+        MockFirewallSettingsServerResource.FIREWALL_SETTINGS = new FirewallSettings();
+        MockFirewallSettingsServerResource.GET_SETTINGS_COUNT = 0;
         MockAuthenticationAuthenticateServerResource.AUTHENTICATE_COUNT = 0;
     }
 
@@ -111,6 +119,7 @@ public class ConnectorAgentServiceTestCase extends RestletTestCase  {
                 router.attach(ROOT_PATH + ModulesSettingsModule.MODULE_PATH, MockModulesSettingsServerResource.class);
                 router.attach(ROOT_PATH + AuthenticationModule.AUTHENTICATE_PATH, MockAuthenticationAuthenticateServerResource.class);
                 router.attach(ROOT_PATH + AuthorizationModule.OPERATIONS_AUTHORIZATIONS_PATH, MockAuthorizationOperationsServerResource.class);
+                router.attach(ROOT_PATH + FirewallModule.SETTINGS_PATH, MockFirewallSettingsServerResource.class);
                 authenticator.setNext(router);
 
                 return authenticator;
@@ -259,6 +268,138 @@ public class ConnectorAgentServiceTestCase extends RestletTestCase  {
         assertEquals(1, MockAuthenticationAuthenticateServerResource.AUTHENTICATE_COUNT);
     }
 
+    public void testFirewall_noConfig() throws Exception {
+        //configure
+        MockModulesSettingsServerResource.MODULES_SETTINGS.setFirewallModuleEnabled(true);
+
+        //run
+        ConnectorAgentConfig connectorAgentConfig = getConnectorAgentConfig();
+        startAgent(connectorAgentConfig);
+
+        //verify
+        assertEquals(1, MockModulesSettingsServerResource.GET_SETTINGS_COUNT);
+        assertEquals(1, MockFirewallSettingsServerResource.GET_SETTINGS_COUNT);
+
+        //call api
+        Response response = callAgent("/test", VALID_USERNAME, VALID_PASSWORD);
+        assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
+    }
+
+    public void testFirewall_ipFilter_blocking() throws Exception {
+        //configure
+        MockModulesSettingsServerResource.MODULES_SETTINGS.setFirewallModuleEnabled(true);
+
+        FirewallIpFilter firewallIpFilter = new FirewallIpFilter();
+        firewallIpFilter.setWhiteList(true);
+        firewallIpFilter.setIps(Arrays.asList("1.1.1.1"));
+        MockFirewallSettingsServerResource.FIREWALL_SETTINGS.setIpFilters(
+                Arrays.asList(firewallIpFilter));
+
+        //run
+        ConnectorAgentConfig connectorAgentConfig = getConnectorAgentConfig();
+        startAgent(connectorAgentConfig);
+
+        //verify
+        assertEquals(1, MockModulesSettingsServerResource.GET_SETTINGS_COUNT);
+        assertEquals(1, MockFirewallSettingsServerResource.GET_SETTINGS_COUNT);
+
+        //call api
+        Response response = callAgent("/test", VALID_USERNAME, VALID_PASSWORD);
+        assertEquals(Status.CLIENT_ERROR_FORBIDDEN, response.getStatus());
+    }
+
+    public void testFirewall_rateLimitation_blocking_anonymous_user_second_call() throws Exception {
+        //configure
+        MockModulesSettingsServerResource.MODULES_SETTINGS.setAuthenticationModuleEnabled(true);
+        MockModulesSettingsServerResource.MODULES_SETTINGS.setFirewallModuleEnabled(true);
+
+        FirewallRateLimit firewallRateLimit = new FirewallRateLimit();
+        firewallRateLimit.setName("max 1 call per minute");
+        firewallRateLimit.setPeriod((int)TimeUnit.MINUTES.toSeconds(1));
+        firewallRateLimit.setRateLimit(1);
+        firewallRateLimit.setDefaultRateLimit(true);
+        MockFirewallSettingsServerResource.FIREWALL_SETTINGS.setRateLimits(
+                Arrays.asList(firewallRateLimit));
+
+        //run
+        ConnectorAgentConfig connectorAgentConfig = getConnectorAgentConfig();
+        startAgent(connectorAgentConfig);
+
+        //verify
+        assertEquals(1, MockModulesSettingsServerResource.GET_SETTINGS_COUNT);
+        assertEquals(1, MockFirewallSettingsServerResource.GET_SETTINGS_COUNT);
+
+        //call api
+        Response response = callAgent("/test", VALID_USERNAME, VALID_PASSWORD);
+        assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
+
+        //second api call
+        response = callAgent("/test", VALID_USERNAME, VALID_PASSWORD);
+        assertEquals(Status.CLIENT_ERROR_TOO_MANY_REQUESTS, response.getStatus());
+    }
+
+    public void testFirewall_rateLimitation_blocking_userrole_second_call() throws Exception {
+        //configure
+        MockModulesSettingsServerResource.MODULES_SETTINGS.setAuthenticationModuleEnabled(true);
+        MockModulesSettingsServerResource.MODULES_SETTINGS.setFirewallModuleEnabled(true);
+
+        FirewallRateLimit firewallRateLimit = new FirewallRateLimit();
+        firewallRateLimit.setName("max 1 call per minute");
+        firewallRateLimit.setPeriod((int)TimeUnit.MINUTES.toSeconds(1));
+        firewallRateLimit.setGroup("user");
+        firewallRateLimit.setRateLimit(1);
+        firewallRateLimit.setDefaultRateLimit(false);
+        MockFirewallSettingsServerResource.FIREWALL_SETTINGS.setRateLimits(
+                Arrays.asList(firewallRateLimit));
+
+        //run
+        ConnectorAgentConfig connectorAgentConfig = getConnectorAgentConfig();
+        startAgent(connectorAgentConfig);
+
+        //verify
+        assertEquals(1, MockModulesSettingsServerResource.GET_SETTINGS_COUNT);
+        assertEquals(1, MockFirewallSettingsServerResource.GET_SETTINGS_COUNT);
+
+        //call api
+        Response response = callAgent("/test", VALID_USERNAME, VALID_PASSWORD);
+        assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
+
+        //second api call
+        response = callAgent("/test", VALID_USERNAME, VALID_PASSWORD);
+        assertEquals(Status.CLIENT_ERROR_TOO_MANY_REQUESTS, response.getStatus());
+    }
+
+    public void testFirewall_rateLimitation_noblocking_userrole_because_another_group() throws Exception {
+        //configure
+        MockModulesSettingsServerResource.MODULES_SETTINGS.setAuthenticationModuleEnabled(true);
+        MockModulesSettingsServerResource.MODULES_SETTINGS.setFirewallModuleEnabled(true);
+
+        FirewallRateLimit firewallRateLimit = new FirewallRateLimit();
+        firewallRateLimit.setName("max 1 call per minute");
+        firewallRateLimit.setPeriod((int)TimeUnit.MINUTES.toSeconds(1));
+        firewallRateLimit.setGroup("admin");
+        firewallRateLimit.setRateLimit(1);
+        firewallRateLimit.setDefaultRateLimit(false);
+        MockFirewallSettingsServerResource.FIREWALL_SETTINGS.setRateLimits(
+                Arrays.asList(firewallRateLimit));
+
+        //run
+        ConnectorAgentConfig connectorAgentConfig = getConnectorAgentConfig();
+        startAgent(connectorAgentConfig);
+
+        //verify
+        assertEquals(1, MockModulesSettingsServerResource.GET_SETTINGS_COUNT);
+        assertEquals(1, MockFirewallSettingsServerResource.GET_SETTINGS_COUNT);
+
+        //call api
+        Response response = callAgent("/test", VALID_USERNAME, VALID_PASSWORD);
+        assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
+
+        //second api call
+        response = callAgent("/test", VALID_USERNAME, VALID_PASSWORD);
+        assertEquals(Status.SUCCESS_NO_CONTENT, response.getStatus());
+    }
+
     private void startAgent(ConnectorAgentConfig connectorAgentConfig) throws Exception {
         this.agentComponent = new Component();
         this.agentComponent.setName("agent");
@@ -354,6 +495,18 @@ public class ConnectorAgentServiceTestCase extends RestletTestCase  {
                     new OperationAuthorization(Method.GET.getName(), "/admin/test", Arrays.asList("admin"))
                     )
             );
+        }
+    }
+
+    public static class MockFirewallSettingsServerResource extends ServerResource implements FirewallSettingsResource {
+        public static int GET_SETTINGS_COUNT = 0;
+        public static FirewallSettings FIREWALL_SETTINGS;
+
+
+        @Override
+        public FirewallSettings getSettings() {
+            GET_SETTINGS_COUNT++;
+            return FIREWALL_SETTINGS;
         }
     }
 }
