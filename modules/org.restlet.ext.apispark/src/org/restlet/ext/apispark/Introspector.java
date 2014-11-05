@@ -182,8 +182,8 @@ public class Introspector extends IntrospectionUtils {
                         application, null, component,
                         introspectorPlugins);
             } else if (clazz != null) {
-                javax.ws.rs.core.Application jaxrsApplication = JaxsIntrospector.getApplication(defSource);
-                definition = JaxsIntrospector.getDefinition(jaxrsApplication);
+                javax.ws.rs.core.Application jaxrsApplication = JaxRsIntrospector.getApplication(defSource);
+                definition = JaxRsIntrospector.getDefinition(jaxrsApplication);
             } else {
                 LOGGER.log(Level.SEVERE,
                         "Class " + defSource + " is not supported");

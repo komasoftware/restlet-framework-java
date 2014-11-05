@@ -94,11 +94,11 @@ import java.util.logging.Logger;
  *
  * @author Thierry Boileau
  */
-public class JaxsIntrospector extends IntrospectionUtils {
+public class JaxRsIntrospector extends IntrospectionUtils {
 
     /** Internal logger. */
     protected static Logger LOGGER = Logger
-            .getLogger(JaxsIntrospector.class.getName());
+            .getLogger(JaxRsIntrospector.class.getName());
 
     private static final String SUFFIX_SERVER_RESOURCE = "ServerResource";
     private static final String SUFFIX_RESOURCE = "Resource";
