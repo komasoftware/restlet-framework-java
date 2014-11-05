@@ -47,7 +47,6 @@ import org.restlet.engine.Engine;
 import org.restlet.engine.util.StringUtils;
 import org.restlet.ext.apispark.internal.conversion.TranslationException;
 import org.restlet.ext.apispark.internal.conversion.swagger.v1_2.SwaggerUtils;
-import org.restlet.ext.apispark.internal.introspection.ApplicationIntrospector;
 import org.restlet.ext.apispark.internal.introspection.ComponentIntrospector;
 import org.restlet.ext.apispark.internal.introspection.IntrospectorPlugin;
 import org.restlet.ext.apispark.internal.model.Definition;
@@ -185,8 +184,7 @@ public class Introspector {
                         introspectorPlugins);
             } else if (clazz != null) {
                 javax.ws.rs.core.Application jaxrsApplication = JaxRsIntrospector.getApplication(defSource);
-                JaxRsIntrospector jaxrsIntrospector = new JaxRsIntrospector(jaxrsApplication);
-                definition = jaxrsIntrospector.getDefinition();
+                definition = JaxRsIntrospector.getDefinition(jaxrsApplication);
             } else {
                 LOGGER.log(Level.SEVERE,
                         "Class " + defSource + " is not supported");

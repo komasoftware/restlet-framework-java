@@ -17,9 +17,8 @@ import org.restlet.ext.apispark.internal.reflect.ReflectUtils;
 public class RepresentationCollector {
 
     /**
-     * Returns the description of the given class as a
-     * {@link Representation}.
-     *
+     * Returns the description of the given class as a {@link Representation}.
+     * 
      * @param clazz
      *            The class to document.
      * @param type
@@ -114,18 +113,6 @@ public class RepresentationCollector {
 
                     representation.getProperties().add(property);
                 }
-
-                // Parent representation are not extracted
-                // //add parent representation if any
-                // Class<?> parentType = representationType.getSuperclass();
-                // if (parentType != null) {
-                // String parentTypeIdentifier = addRepresentation(collectInfo,
-                // parentType, parentType.getGenericSuperclass());
-                // if (parentTypeIdentifier != null) {
-                // representation.setExtendedType(parentTypeIdentifier);
-                // }
-                // }
-
             }
             
             for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {

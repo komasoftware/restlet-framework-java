@@ -31,7 +31,7 @@
  * Restlet is a registered trademark of Restlet S.A.S.
  */
 
-package org.restlet.ext.apispark.internal.introspection;
+package org.restlet.ext.apispark;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,10 @@ import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
 import org.restlet.engine.util.StringUtils;
-import org.restlet.ext.apispark.DocumentedApplication;
+import org.restlet.ext.apispark.internal.introspection.CollectInfo;
+import org.restlet.ext.apispark.internal.introspection.ComponentIntrospector;
+import org.restlet.ext.apispark.internal.introspection.IntrospectorPlugin;
+import org.restlet.ext.apispark.internal.introspection.RestletCollector;
 import org.restlet.ext.apispark.internal.model.Contract;
 import org.restlet.ext.apispark.internal.model.Definition;
 import org.restlet.ext.apispark.internal.model.Endpoint;
@@ -112,8 +115,7 @@ public class ApplicationIntrospector extends IntrospectionUtils {
      */
     public static Definition getDefinition(Application application,
             Reference baseRef, Component component) {
-        return getDefinition(application, baseRef, component,
-                (List<IntrospectorPlugin>) null);
+        return getDefinition(application, baseRef, component, null);
     }
 
     /**
@@ -128,6 +130,8 @@ public class ApplicationIntrospector extends IntrospectionUtils {
      *            as the endpoint.
      * 
      * @param introspectorPlugins
+     *              Optional list of introspector plugins
+     *
      * @return An application description.
      */
     public static Definition getDefinition(Application application,
@@ -136,7 +140,7 @@ public class ApplicationIntrospector extends IntrospectionUtils {
 
         // initialize the list to avoid to add a null check statement
         if (introspectorPlugins == null) {
-            introspectorPlugins = new ArrayList<IntrospectorPlugin>();
+            introspectorPlugins = new ArrayList<>();
         }
         Definition definition = new Definition();
 

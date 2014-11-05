@@ -34,10 +34,14 @@
 package org.restlet.test.ext.jaxrs.services.resources;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 import org.restlet.test.ext.jaxrs.services.others.Issue971Object;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 /**
  * @author Martin Krasser
@@ -52,4 +56,21 @@ public class Issue971Resource {
         return new Issue971Object("issue 971 description");
     }
 
+
+    private static boolean isResourceMethod(Method method) {
+        for (Annotation annotation : method.getDeclaredAnnotations()) {
+            if (annotation instanceof HttpMethod) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void main(String[] args) throws NoSuchMethodException {
+        Method method = new Issue971Resource().getClass().getDeclaredMethod("getIssue971");
+
+        System.out.println(method.getAnnotation(HttpMethod.class));
+        System.out.println(method.getAnnotation(GET.class));
+        System.out.println(isResourceMethod(method));
+    }
 }

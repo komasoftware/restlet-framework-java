@@ -34,6 +34,9 @@ public class ResourceCollector {
     protected static Logger LOGGER = Logger.getLogger(ResourceCollector.class
             .getName());
 
+    private static final String SUFFIX_SERVER_RESOURCE = "ServerResource";
+    private static final String SUFFIX_RESOURCE = "Resource";
+
     public static void collectResourceForDirectory(CollectInfo collectInfo,
             Directory directory, String basePath, ChallengeScheme scheme, List<IntrospectorPlugin> introspectorPlugins) {
         Resource resource = getResource(collectInfo, directory, basePath,
@@ -126,29 +129,28 @@ public class ResourceCollector {
             resource.setName(documentedServerResource.getResourceName());
             resource.setDescription(documentedServerResource
                     .getResourceDescription());
-            for (String identifier : documentedServerResource
-                    .getResourceSections()) {
-                if (collectInfo.getSection(identifier) == null) {
-                    collectInfo.addSection(new Section(identifier));
-                }
-            }
             resource.setSections(documentedServerResource.getResourceSections());
         } else {
             String sectionName = restlet.getClass().getPackage().getName();
-            if (collectInfo.getSection(sectionName) == null) {
-                Section section = new Section(sectionName);
-                collectInfo.addSection(section);
-            }
             resource.getSections().add(sectionName);
         }
 
         if (StringUtils.isNullOrEmpty(resource.getName())) {
             String name = restlet.getClass().getSimpleName();
-            String suffix = "ServerResource";
-            if (name.endsWith(suffix) && name.length() > suffix.length()) {
-                name = name.substring(0, name.length() - suffix.length());
+            if (name.endsWith(SUFFIX_SERVER_RESOURCE) && name.length() > SUFFIX_SERVER_RESOURCE.length()) {
+                name = name.substring(0, name.length() - SUFFIX_SERVER_RESOURCE.length());
+            }
+            if (name.endsWith(SUFFIX_RESOURCE) && name.length() > SUFFIX_RESOURCE.length()) {
+                name = name.substring(0, name.length() - SUFFIX_RESOURCE.length());
             }
             resource.setName(name);
+        }
+
+        //add sections in collect info
+        for (String section : resource.getSections()) {
+            if (collectInfo.getSection(section) == null) {
+                collectInfo.addSection(new Section(section));
+            }
         }
 
         Template template = new Template(basePath);

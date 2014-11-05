@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.restlet.engine.util.StringUtils;
-import org.restlet.ext.apispark.internal.introspection.ApplicationIntrospector;
+import org.restlet.ext.apispark.ApplicationIntrospector;
 import org.restlet.ext.apispark.internal.model.Definition;
 import org.restlet.ext.apispark.internal.model.Endpoint;
 import org.restlet.ext.apispark.internal.model.Header;
