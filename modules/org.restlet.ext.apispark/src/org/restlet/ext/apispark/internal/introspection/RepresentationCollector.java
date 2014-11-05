@@ -15,21 +15,12 @@ import org.restlet.ext.apispark.internal.reflect.ReflectUtils;
 public class RepresentationCollector {
 
     /**
-<<<<<<< HEAD
-     * Returns the description of the given class as a
-     * {@link Representation}.
-     *
-     * @param clazz The class to document.
-     * @param type  The class to document.
-     * @param introspectorPlugins
-=======
      * Returns the description of the given class as a {@link Representation}.
      * 
      * @param clazz
      *            The class to document.
-     * @param type²
+     * @param type
      *            The class to document.
->>>>>>> added sections by package
      * @return The name of representation type if added, null otherwise
      *         {@link Representation}.
      */

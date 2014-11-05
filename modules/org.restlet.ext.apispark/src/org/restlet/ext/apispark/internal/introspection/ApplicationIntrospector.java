@@ -137,7 +137,7 @@ public class ApplicationIntrospector extends IntrospectionUtils {
 
         // initialize the list to avoid to add a null check statement
         if (introspectorPlugins == null) {
-            introspectorPlugins = new ArrayList<IntrospectorPlugin>();
+            introspectorPlugins = new ArrayList<>();
         }
         Definition definition = new Definition();
 
