@@ -34,11 +34,8 @@
 package org.restlet.ext.apispark;
 
 import org.restlet.data.ChallengeScheme;
-import org.restlet.data.MediaType;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
-import org.restlet.ext.apispark.internal.introspection.IntrospectorPlugin;
-import org.restlet.ext.apispark.internal.introspection.RepresentationCollector;
 import org.restlet.ext.apispark.internal.model.Contract;
 import org.restlet.ext.apispark.internal.model.Definition;
 import org.restlet.ext.apispark.internal.model.Endpoint;
@@ -56,7 +53,6 @@ import org.restlet.ext.apispark.internal.model.Types;
 import org.restlet.ext.apispark.internal.reflect.ReflectUtils;
 import org.restlet.ext.apispark.internal.utils.IntrospectionUtils;
 import org.restlet.ext.apispark.internal.utils.StringUtils;
-import org.restlet.representation.Variant;
 import scala.actors.threadpool.Arrays;
 
 import javax.ws.rs.ApplicationPath;
@@ -98,11 +94,11 @@ import java.util.logging.Logger;
  *
  * @author Thierry Boileau
  */
-public class JaxrsIntrospector extends IntrospectionUtils {
+public class JaxsIntrospector extends IntrospectionUtils {
 
     /** Internal logger. */
     protected static Logger LOGGER = Logger
-            .getLogger(JaxrsIntrospector.class.getName());
+            .getLogger(JaxsIntrospector.class.getName());
 
     private static final String SUFFIX_SERVER_RESOURCE = "ServerResource";
     private static final String SUFFIX_RESOURCE = "Resource";

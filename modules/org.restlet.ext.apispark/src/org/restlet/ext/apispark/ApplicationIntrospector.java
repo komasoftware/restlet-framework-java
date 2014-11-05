@@ -31,7 +31,7 @@
  * Restlet is a registered trademark of Restlet S.A.S.
  */
 
-package org.restlet.ext.apispark.internal.introspection;
+package org.restlet.ext.apispark;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +42,11 @@ import org.restlet.Application;
 import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
+import org.restlet.ext.apispark.internal.introspection.CollectInfo;
+import org.restlet.ext.apispark.internal.introspection.ComponentIntrospector;
+import org.restlet.ext.apispark.internal.introspection.IntrospectorPlugin;
+import org.restlet.ext.apispark.internal.introspection.RestletCollector;
 import org.restlet.ext.apispark.internal.utils.StringUtils;
-import org.restlet.ext.apispark.DocumentedApplication;
 import org.restlet.ext.apispark.internal.model.Contract;
 import org.restlet.ext.apispark.internal.model.Definition;
 import org.restlet.ext.apispark.internal.model.Endpoint;
