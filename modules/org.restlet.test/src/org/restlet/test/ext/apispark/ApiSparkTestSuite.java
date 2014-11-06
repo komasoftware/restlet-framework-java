@@ -31,7 +31,7 @@
  * Restlet is a registered trademark of Restlet S.A.S.
  */
 
-package org.restlet.test.ext.apispark.conversion.swagger;
+package org.restlet.test.ext.apispark;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -44,11 +44,12 @@ import org.restlet.test.ext.apispark.conversion.swagger.v2_0.Swagger2TranslatorT
  * 
  * @author Cyprien Quilici
  */
-public class SwaggerTestSuite extends TestCase {
+public class ApiSparkTestSuite extends TestCase {
 
 	public static Test suite() {
 		TestSuite result = new TestSuite();
 		result.setName("Swagger extension");
+		result.addTestSuite(AgentServiceTestCase.class);
 		result.addTestSuite(SwaggerTranslatorTestCase.class);
 		result.addTestSuite(Swagger2TranslatorTestCase.class);
 		return result;

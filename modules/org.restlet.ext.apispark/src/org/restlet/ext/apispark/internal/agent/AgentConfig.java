@@ -53,7 +53,7 @@ public class AgentConfig {
     }
 
     public String getAgentSecretKey() {
-        return new String(agentSecretKey);
+        return agentSecretKey != null ? new String(agentSecretKey) : null;
     }
 
     public AgentConfig setAgentSecretKey(char[] agentSecretKey) {
@@ -62,7 +62,7 @@ public class AgentConfig {
     }
 
     public AgentConfig setAgentSecretKey(String agentSecretKey) {
-        this.agentSecretKey = agentSecretKey.toCharArray();
+        this.agentSecretKey = agentSecretKey != null ? agentSecretKey.toCharArray() : null;
         return this;
     }
 

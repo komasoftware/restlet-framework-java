@@ -100,6 +100,6 @@ public class AgentService extends Service {
     }
 
     public void setAgentSecretKey(String agentSecretKey) {
-        this.agentSecretKey = agentSecretKey.toCharArray();
+        this.agentSecretKey = agentSecretKey != null ? agentSecretKey.toCharArray() : null;
     }
 }
