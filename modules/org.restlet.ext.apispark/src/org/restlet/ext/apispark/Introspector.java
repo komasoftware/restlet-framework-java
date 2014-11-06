@@ -47,8 +47,10 @@ import org.restlet.engine.Engine;
 import org.restlet.engine.util.StringUtils;
 import org.restlet.ext.apispark.internal.conversion.TranslationException;
 import org.restlet.ext.apispark.internal.conversion.swagger.v1_2.SwaggerUtils;
-import org.restlet.ext.apispark.internal.introspection.ComponentIntrospector;
+import org.restlet.ext.apispark.internal.introspection.application.ApplicationIntrospector;
+import org.restlet.ext.apispark.internal.introspection.application.ComponentIntrospector;
 import org.restlet.ext.apispark.internal.introspection.IntrospectorPlugin;
+import org.restlet.ext.apispark.internal.introspection.jaxrs.JaxRsIntrospector;
 import org.restlet.ext.apispark.internal.model.Definition;
 import org.restlet.ext.apispark.internal.reflect.ReflectUtils;
 import org.restlet.ext.apispark.internal.utils.IntrospectionUtils;
@@ -184,7 +186,7 @@ public class Introspector {
                         introspectorPlugins);
             } else if (clazz != null) {
                 javax.ws.rs.core.Application jaxrsApplication = JaxRsIntrospector.getApplication(defSource);
-                definition = JaxRsIntrospector.getDefinition(jaxrsApplication, introspectorPlugins);
+                definition = JaxRsIntrospector.getDefinition(jaxrsApplication, null, introspectorPlugins);
             } else {
                 LOGGER.log(Level.SEVERE,
                         "Class " + defSource + " is not supported");
@@ -280,7 +282,7 @@ public class Introspector {
                 "-i, --introspectorPlugins introspectorPluginClass",
                 "The optional class name of an introspector plugin. " +
                         "This options could be use several times for each plugin. " +
-                        "Example: 'org.restlet.ext.swagger.v2_0.introspector.SwaggerAnnotationIntrospectorPlugin'");
+                        "Example: '-i org.restlet.ext.swagger.v2_0.introspector.SwaggerAnnotationIntrospectorPlugin'");
         IntrospectionUtils.printOption(o, "-v, --verbose",
                 "The optional parameter switching the process to a verbose mode");
     }

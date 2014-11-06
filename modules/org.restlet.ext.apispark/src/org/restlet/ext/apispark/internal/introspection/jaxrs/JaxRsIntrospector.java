@@ -31,13 +31,14 @@
  * Restlet is a registered trademark of Restlet S.A.S.
  */
 
-package org.restlet.ext.apispark;
+package org.restlet.ext.apispark.internal.introspection.jaxrs;
 
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.engine.util.BeanInfoUtils;
 import org.restlet.engine.util.StringUtils;
+import org.restlet.ext.apispark.DocumentedApplication;
 import org.restlet.ext.apispark.internal.introspection.IntrospectorPlugin;
 import org.restlet.ext.apispark.internal.model.Contract;
 import org.restlet.ext.apispark.internal.model.Definition;
@@ -132,7 +133,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
      * @param introspectorPlugins
      * @return An application description.
      */
-    public static void scanResources(CollectInfo collectInfo, Application application, List<IntrospectorPlugin> introspectorPlugins) {
+    public static void scanResources(CollectInfo collectInfo, Application application, List<? extends IntrospectorPlugin> introspectorPlugins) {
         for (Class<?> clazz : application.getClasses()) {
             scanClazz(collectInfo, clazz, introspectorPlugins);
         }
@@ -144,7 +145,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
     }
 
     private static void scanClazz(CollectInfo collectInfo, Class<?> clazz,
-                                  List<IntrospectorPlugin> introspectorPlugins) {
+                                  List<? extends IntrospectorPlugin> introspectorPlugins) {
         ClazzInfo clazzInfo = new ClazzInfo();
 
         // Introduced by Jax-rs 2.0
@@ -253,7 +254,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
     }
 
     private static void scanResourceMethod(CollectInfo collectInfo, ClazzInfo clazzInfo,
-                                           Method method, List<IntrospectorPlugin> introspectorPlugins) {
+                                           Method method, List<? extends IntrospectorPlugin> introspectorPlugins) {
         // "Path" decides on which resource to put this method
         Path path = method.getAnnotation(Path.class);
 
@@ -433,7 +434,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
         }
     }
 
-    private static void addRepresentation(CollectInfo collectInfo, Class<?> clazz, Type type, List<IntrospectorPlugin> introspectorPlugins) {
+    private static void addRepresentation(CollectInfo collectInfo, Class<?> clazz, Type type, List<? extends IntrospectorPlugin> introspectorPlugins) {
 // Introspect the java class
         Representation representation = new Representation();
         representation.setDescription("");
@@ -632,7 +633,8 @@ public class JaxRsIntrospector extends IntrospectionUtils {
      *            An application to introspect.
      * @param introspectorPlugins
      */
-    public static Definition getDefinition(Application application, List<IntrospectorPlugin> introspectorPlugins) {
+    public static Definition getDefinition(Application application, Reference baseRef,
+                                           List<? extends IntrospectorPlugin> introspectorPlugins) {
         // initialize the list to avoid to add a null check statement
         if (introspectorPlugins == null) {
             introspectorPlugins = new ArrayList<>();
@@ -658,7 +660,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
         // add sections
         contract.setSections(collectInfo.getSections());
 
-        addEndpoints(application, definition);
+        addEndpoints(application, baseRef, definition);
 
         sortDefinition(definition);
 
@@ -677,7 +679,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
         contract.setName(application.getClass().getName());
 
         // Sections
-        org.restlet.ext.apispark.internal.introspection.CollectInfo collectInfo = new org.restlet.ext.apispark.internal.introspection.CollectInfo();
+        org.restlet.ext.apispark.internal.introspection.application.CollectInfo collectInfo = new org.restlet.ext.apispark.internal.introspection.application.CollectInfo();
         if (application instanceof DocumentedApplication) {
             DocumentedApplication documentedApplication = (DocumentedApplication) application;
             collectInfo.setSections(documentedApplication.getSections());
@@ -685,11 +687,17 @@ public class JaxRsIntrospector extends IntrospectionUtils {
         definition.setContract(contract);
     }
 
-    private static void addEndpoints(Application application, Definition definition) {
+    private static void addEndpoints(Application application, Reference baseRef, Definition definition) {
         ApplicationPath ap = application.getClass().getAnnotation(
                 ApplicationPath.class);
         if (ap != null) {
             Endpoint endpoint = new Endpoint(ap.value());
+            definition.getEndpoints().add(endpoint);
+        }
+        if (baseRef != null) {
+            Endpoint endpoint = new Endpoint(baseRef.getHostDomain(),
+                    baseRef.getHostPort(), baseRef.getSchemeProtocol()
+                    .getSchemeName(), baseRef.getPath(), null);
             definition.getEndpoints().add(endpoint);
         }
     }
