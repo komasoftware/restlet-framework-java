@@ -36,7 +36,9 @@ package org.restlet.ext.apispark;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
+import org.restlet.engine.util.BeanInfoUtils;
 import org.restlet.engine.util.StringUtils;
+import org.restlet.ext.apispark.internal.introspection.IntrospectorPlugin;
 import org.restlet.ext.apispark.internal.model.Contract;
 import org.restlet.ext.apispark.internal.model.Definition;
 import org.restlet.ext.apispark.internal.model.Endpoint;
@@ -74,6 +76,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
+import java.beans.BeanInfo;
+import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -125,20 +129,22 @@ public class JaxRsIntrospector extends IntrospectionUtils {
      * @param collectInfo
      * @param application
      *            The application.
+     * @param introspectorPlugins
      * @return An application description.
      */
-    public static void scanResources(CollectInfo collectInfo, Application application) {
+    public static void scanResources(CollectInfo collectInfo, Application application, List<IntrospectorPlugin> introspectorPlugins) {
         for (Class<?> clazz : application.getClasses()) {
-            scanClazz(collectInfo, clazz);
+            scanClazz(collectInfo, clazz, introspectorPlugins);
         }
         for (Object singleton : application.getSingletons()) {
             if (singleton != null) {
-                scanClazz(collectInfo, singleton.getClass());
+                scanClazz(collectInfo, singleton.getClass(), introspectorPlugins);
             }
         }
     }
 
-    private static void scanClazz(CollectInfo collectInfo, Class<?> clazz) {
+    private static void scanClazz(CollectInfo collectInfo, Class<?> clazz,
+                                  List<IntrospectorPlugin> introspectorPlugins) {
         ClazzInfo clazzInfo = new ClazzInfo();
 
         // Introduced by Jax-rs 2.0
@@ -188,7 +194,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
         //todo authentication protocol
 
         //First scan bean properties methods ("simple"), then scan resource methods
-        List<Method> resourceMethods = new ArrayList<Method>();
+        List<Method> resourceMethods = new ArrayList<>();
 
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
@@ -202,7 +208,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
         }
 
         for (Method resourceMethod : resourceMethods) {
-            scanResourceMethod(collectInfo, clazzInfo, resourceMethod);
+            scanResourceMethod(collectInfo, clazzInfo, resourceMethod, introspectorPlugins);
         }
 
     }
@@ -247,7 +253,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
     }
 
     private static void scanResourceMethod(CollectInfo collectInfo, ClazzInfo clazzInfo,
-                                           Method method) {
+                                           Method method, List<IntrospectorPlugin> introspectorPlugins) {
         // "Path" decides on which resource to put this method
         Path path = method.getAnnotation(Path.class);
 
@@ -314,7 +320,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
                 }
                 if (annotation instanceof FormParam) {
                     isEntity = false;
-                    addRepresentation(collectInfo, parameterTypes[i], genericParameterTypes[i]);
+                    addRepresentation(collectInfo, parameterTypes[i], genericParameterTypes[i], introspectorPlugins);
                 }
                 if (annotation instanceof HeaderParam) {
                     isEntity = false;
@@ -350,7 +356,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
                 //check if the parameter is an entity (no annotation)
                 if (isEntity) {
                     addRepresentation(collectInfo, parameterTypes[i],
-                            genericParameterTypes[i]);
+                            genericParameterTypes[i], introspectorPlugins);
 
                     PayLoad inputEntity = new PayLoad();
                     inputEntity.setType(Types.convertPrimitiveType(ReflectUtils.getSimpleClass(genericParameterTypes[i])));
@@ -373,7 +379,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
         if (outputClass != Void.TYPE) {
             // Output representation
             addRepresentation(collectInfo, outputClass,
-                    outputType);
+                    outputType, introspectorPlugins);
 
             PayLoad outputEntity = new PayLoad();
             Class<?> simpleClass = ReflectUtils.getSimpleClass(outputType);
@@ -392,11 +398,6 @@ public class JaxRsIntrospector extends IntrospectionUtils {
         response.setDescription("");
         response.setMessage(Status.SUCCESS_OK.getDescription());
         operation.getResponses().add(response);
-
-        //todo introspector plugin
-//        for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {
-//            introspectorPlugin.processOperation(operation, methodAnnotationInfo);
-//        }
 
         Resource resource = collectInfo.getResource(cleanPath);
         if (resource == null) {
@@ -419,12 +420,20 @@ public class JaxRsIntrospector extends IntrospectionUtils {
             resource.getSections().add(sectionName);
 
             collectInfo.addResource(resource);
+
+            for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {
+                introspectorPlugin.processResource(resource, clazzInfo.getClazz());
+            }
         }
 
         resource.getOperations().add(operation);
+
+        for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {
+            introspectorPlugin.processOperation(resource, operation, clazzInfo.getClazz(), method);
+        }
     }
 
-    private static void addRepresentation(CollectInfo collectInfo, Class<?> clazz, Type type) {
+    private static void addRepresentation(CollectInfo collectInfo, Class<?> clazz, Type type, List<IntrospectorPlugin> introspectorPlugins) {
 // Introspect the java class
         Representation representation = new Representation();
         representation.setDescription("");
@@ -438,7 +447,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
         if (generic || isList) {
             // Collect generic type
             addRepresentation(collectInfo, representationType,
-                    representationType.getGenericSuperclass());
+                    representationType.getGenericSuperclass(), introspectorPlugins);
             return;
         }
 
@@ -477,38 +486,39 @@ public class JaxRsIntrospector extends IntrospectionUtils {
                 .getIdentifier()) == null;
 
         if (notInCache) {
+
+            // add representation in cache before complete it to avoid infinite loop
+            collectInfo.addRepresentation(representation);
+
             if (!isRaw) {
                 // add properties definition
-                for (Field field : ReflectUtils
-                        .getAllDeclaredFields(representationType)) {
-                    if ("serialVersionUID".equals(field.getName())) {
-                        continue;
-                    }
+                BeanInfo beanInfo = BeanInfoUtils.getBeanInfo(representationType);
+                for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+                    Class<?> propertyClazz = pd.getReadMethod().getReturnType();
+                    Type propertyType = pd.getReadMethod().getGenericReturnType();
+
                     Property property = new Property();
-                    property.setName(field.getName());
+                    property.setName(pd.getName());
                     property.setDescription("");
-                    Class<?> fieldType = ReflectUtils.getSimpleClass(field);
-                    addRepresentation(collectInfo, fieldType,
-                            field.getGenericType());
-                    property.setType(Types.convertPrimitiveType(fieldType));
+                    property.setType(Types.convertPrimitiveType(ReflectUtils.getSimpleClass(propertyType)));
                     property.setMinOccurs(0);
-                    boolean isCollection = ReflectUtils.isListType(field
-                            .getType());
+                    boolean isCollection = ReflectUtils.isListType(propertyClazz);
                     property.setMaxOccurs(isCollection ? -1 : 1);
 
-//                    for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {
-//                        introspectorPlugin.processProperty(property, field);
-//                    }
+                    addRepresentation(collectInfo, propertyClazz,
+                            propertyType, introspectorPlugins);
+
+                    for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {
+                        introspectorPlugin.processProperty(property, pd.getReadMethod());
+                    }
 
                     representation.getProperties().add(property);
                 }
             }
 
-//            for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {
-//                introspectorPlugin.processRepresentation(representation, representationType);
-//            }
-            // add in cache
-            collectInfo.addRepresentation(representation);
+            for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {
+                introspectorPlugin.processRepresentation(representation, representationType);
+            }
         }
     }
 
@@ -620,8 +630,13 @@ public class JaxRsIntrospector extends IntrospectionUtils {
      *
      * @param application
      *            An application to introspect.
+     * @param introspectorPlugins
      */
-    public static Definition getDefinition(Application application) {
+    public static Definition getDefinition(Application application, List<IntrospectorPlugin> introspectorPlugins) {
+        // initialize the list to avoid to add a null check statement
+        if (introspectorPlugins == null) {
+            introspectorPlugins = new ArrayList<>();
+        }
         Definition definition = new Definition();
 
         CollectInfo collectInfo = new CollectInfo();
@@ -631,7 +646,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
         if (applicationPath != null) {
             collectInfo.setApplicationPath(applicationPath.value());
         }
-        scanResources(collectInfo, application);
+        scanResources(collectInfo, application, introspectorPlugins);
 
         updateDefinitionContract(application, definition);
 
@@ -649,12 +664,9 @@ public class JaxRsIntrospector extends IntrospectionUtils {
 
         updateRepresentationsSectionsFromResources(definition);
 
-        //todo jaxrs introspector plugin
-//        for (Resource resource : definition.getContract().getResources()) {
-//            for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {
-//                introspectorPlugin.processResource(resource, sr);
-//            }
-//        }
+        for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {
+            introspectorPlugin.processDefinition(definition, application.getClass());
+        }
 
         return definition;
     }
@@ -721,7 +733,7 @@ public class JaxRsIntrospector extends IntrospectionUtils {
         StringBuilder result = new StringBuilder();
 
         //keep only not null paths
-        List<String> paths = new ArrayList<String>();
+        List<String> paths = new ArrayList<>();
         for (String path : nullablePaths) {
             if (!StringUtils.isNullOrEmpty(path)) {
                 paths.add(path);
@@ -826,10 +838,9 @@ public class JaxRsIntrospector extends IntrospectionUtils {
 
         //        // List of common annotations, defined at the level of the class, or at
 //        // the level of the fields.
-//        List<FormParam> formParams = new ArrayList<FormParam>();
-        private Map<String, Header> headers = new LinkedHashMap<String, Header>();
-        private Map<String, PathVariable> pathVariables = new LinkedHashMap<String, PathVariable>();
-        private Map<String, QueryParameter> queryParameters = new LinkedHashMap<String, QueryParameter>();
+        private Map<String, Header> headers = new LinkedHashMap<>();
+        private Map<String, PathVariable> pathVariables = new LinkedHashMap<>();
+        private Map<String, QueryParameter> queryParameters = new LinkedHashMap<>();
 
 
         public Class<?> getClazz() {

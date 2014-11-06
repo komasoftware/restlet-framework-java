@@ -184,7 +184,7 @@ public class Introspector {
                         introspectorPlugins);
             } else if (clazz != null) {
                 javax.ws.rs.core.Application jaxrsApplication = JaxRsIntrospector.getApplication(defSource);
-                definition = JaxRsIntrospector.getDefinition(jaxrsApplication);
+                definition = JaxRsIntrospector.getDefinition(jaxrsApplication, introspectorPlugins);
             } else {
                 LOGGER.log(Level.SEVERE,
                         "Class " + defSource + " is not supported");
@@ -207,6 +207,8 @@ public class Introspector {
             LOGGER.severe("Please provide a valid application class name or definition URL.");
         }
     }
+
+
 
     /**
      * Prints the instructions necessary to launch this tool.

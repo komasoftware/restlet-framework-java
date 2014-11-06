@@ -192,7 +192,7 @@ public class ResourceCollector {
      */
     private static void completeOperation(CollectInfo collectInfo,
             Operation operation, MethodAnnotationInfo mai, ServerResource sr,
-            IntrospectorPlugin... introspectorPlugins) {
+            List<IntrospectorPlugin> introspectorPlugins) {
         // Loop over the annotated Java methods
         MetadataService metadataService = sr.getMetadataService();
 

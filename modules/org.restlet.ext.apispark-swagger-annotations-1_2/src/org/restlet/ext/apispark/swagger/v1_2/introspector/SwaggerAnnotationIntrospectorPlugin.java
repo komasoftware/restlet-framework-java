@@ -27,8 +27,12 @@ import java.lang.reflect.Method;
  */
 public class SwaggerAnnotationIntrospectorPlugin implements IntrospectorPlugin {
     @Override
-    public void processDefinition(Definition definition, Application application) {
+    public void processDefinition(Definition definition, Class<?> applicationClazz) {
         //no annotation exists for root definition
+        if (!Application.class.isAssignableFrom(applicationClazz)) {
+            throw new RuntimeException(getClass().getName() + " could only process " +
+                    Application.class.getName() + " application");
+        }
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.restlet.ext.apispark.internal.introspection;
 import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Type;
+import java.util.List;
 
 import org.restlet.engine.util.BeanInfoUtils;
 import org.restlet.ext.apispark.internal.model.Property;
@@ -31,7 +32,7 @@ public class RepresentationCollector {
      */
     public static String addRepresentation(CollectInfo collectInfo,
                                            Class<?> clazz, Type type,
-                                           IntrospectorPlugin[] introspectorPlugins) {
+                                           List<IntrospectorPlugin> introspectorPlugins) {
         // Introspect the java class
         Representation representation = new Representation();
         representation.setDescription("");
