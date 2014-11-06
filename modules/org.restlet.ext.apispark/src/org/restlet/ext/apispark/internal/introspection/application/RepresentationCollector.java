@@ -1,4 +1,4 @@
-package org.restlet.ext.apispark.internal.introspection;
+package org.restlet.ext.apispark.internal.introspection.application;
 
 import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import org.restlet.engine.util.BeanInfoUtils;
+import org.restlet.ext.apispark.internal.introspection.IntrospectorPlugin;
 import org.restlet.ext.apispark.internal.model.Property;
 import org.restlet.ext.apispark.internal.model.Representation;
 import org.restlet.ext.apispark.internal.model.Section;
@@ -13,7 +14,7 @@ import org.restlet.ext.apispark.internal.model.Types;
 import org.restlet.ext.apispark.internal.reflect.ReflectUtils;
 
 /**
- * Created by manu on 11/10/2014.
+ * @author Manuel Boillod
  */
 public class RepresentationCollector {
 
@@ -32,7 +33,7 @@ public class RepresentationCollector {
      */
     public static String addRepresentation(CollectInfo collectInfo,
                                            Class<?> clazz, Type type,
-                                           List<IntrospectorPlugin> introspectorPlugins) {
+                                           List<? extends IntrospectorPlugin> introspectorPlugins) {
         // Introspect the java class
         Representation representation = new Representation();
         representation.setDescription("");

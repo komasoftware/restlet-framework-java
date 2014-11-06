@@ -31,7 +31,7 @@
  * Restlet is a registered trademark of Restlet S.A.S.
  */
 
-package org.restlet.ext.apispark;
+package org.restlet.ext.apispark.internal.introspection.application;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,10 +43,8 @@ import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
 import org.restlet.engine.util.StringUtils;
-import org.restlet.ext.apispark.internal.introspection.CollectInfo;
-import org.restlet.ext.apispark.internal.introspection.ComponentIntrospector;
+import org.restlet.ext.apispark.DocumentedApplication;
 import org.restlet.ext.apispark.internal.introspection.IntrospectorPlugin;
-import org.restlet.ext.apispark.internal.introspection.RestletCollector;
 import org.restlet.ext.apispark.internal.model.Contract;
 import org.restlet.ext.apispark.internal.model.Definition;
 import org.restlet.ext.apispark.internal.model.Endpoint;
@@ -136,7 +134,7 @@ public class ApplicationIntrospector extends IntrospectionUtils {
      */
     public static Definition getDefinition(Application application,
             Reference baseRef, Component component,
-            List<IntrospectorPlugin> introspectorPlugins) {
+            List<? extends IntrospectorPlugin> introspectorPlugins) {
 
         // initialize the list to avoid to add a null check statement
         if (introspectorPlugins == null) {
@@ -190,7 +188,7 @@ public class ApplicationIntrospector extends IntrospectionUtils {
         updateRepresentationsSectionsFromResources(definition);
 
         for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {
-            introspectorPlugin.processDefinition(definition, application);
+            introspectorPlugin.processDefinition(definition, application.getClass());
         }
         return definition;
     }

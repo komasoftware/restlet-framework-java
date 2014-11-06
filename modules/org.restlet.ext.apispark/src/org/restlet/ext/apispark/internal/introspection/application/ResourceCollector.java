@@ -1,4 +1,4 @@
-package org.restlet.ext.apispark.internal.introspection;
+package org.restlet.ext.apispark.internal.introspection.application;
 
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Form;
@@ -10,9 +10,17 @@ import org.restlet.engine.resource.MethodAnnotationInfo;
 import org.restlet.engine.resource.StatusAnnotationInfo;
 import org.restlet.engine.util.StringUtils;
 import org.restlet.ext.apispark.DocumentedResource;
-import org.restlet.ext.apispark.internal.model.*;
+import org.restlet.ext.apispark.internal.introspection.IntrospectorPlugin;
+import org.restlet.ext.apispark.internal.model.Operation;
+import org.restlet.ext.apispark.internal.model.PathVariable;
+import org.restlet.ext.apispark.internal.model.PayLoad;
+import org.restlet.ext.apispark.internal.model.QueryParameter;
+import org.restlet.ext.apispark.internal.model.Resource;
+import org.restlet.ext.apispark.internal.model.Response;
+import org.restlet.ext.apispark.internal.model.Section;
+import org.restlet.ext.apispark.internal.model.Types;
 import org.restlet.ext.apispark.internal.reflect.ReflectUtils;
-import org.restlet.representation.StatusRepresentation;
+import org.restlet.representation.StatusInfo;
 import org.restlet.representation.Variant;
 import org.restlet.resource.Directory;
 import org.restlet.resource.ResourceException;
@@ -22,11 +30,14 @@ import org.restlet.service.MetadataService;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Created by manu on 11/10/2014.
+ * @author Manuel Boillod
  */
 public class ResourceCollector {
 
@@ -38,12 +49,12 @@ public class ResourceCollector {
     private static final String SUFFIX_RESOURCE = "Resource";
 
     public static void collectResourceForDirectory(CollectInfo collectInfo,
-            Directory directory, String basePath, ChallengeScheme scheme, List<IntrospectorPlugin> introspectorPlugins) {
+            Directory directory, String basePath, ChallengeScheme scheme, List<? extends IntrospectorPlugin> introspectorPlugins) {
         Resource resource = getResource(collectInfo, directory, basePath,
                 scheme);
 
         // add operations
-        ArrayList<Operation> operations = new ArrayList<Operation>();
+        ArrayList<Operation> operations = new ArrayList<>();
         operations.add(getOperationFromMethod(Method.GET));
         if (directory.isModifiable()) {
             operations.add(getOperationFromMethod(Method.DELETE));
@@ -52,7 +63,7 @@ public class ResourceCollector {
         resource.setOperations(operations);
 
         for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {
-            introspectorPlugin.processResource(resource, directory);
+            introspectorPlugin.processResource(resource, directory.getClass());
         }
         collectInfo.addResource(resource);
     }
@@ -60,11 +71,11 @@ public class ResourceCollector {
     public static void collectResourceForServletResource(
             CollectInfo collectInfo, ServerResource sr, String basePath,
             ChallengeScheme scheme,
-            List<IntrospectorPlugin> introspectorPlugins) {
+            List<? extends IntrospectorPlugin> introspectorPlugins) {
         Resource resource = getResource(collectInfo, sr, basePath, scheme);
 
         // add operations
-        ArrayList<Operation> operations = new ArrayList<Operation>();
+        ArrayList<Operation> operations = new ArrayList<>();
 
         List<AnnotationInfo> annotations = sr.isAnnotated() ? AnnotationUtils
                 .getInstance().getAnnotations(sr.getClass()) : null;
@@ -93,10 +104,10 @@ public class ResourceCollector {
                     }
 
                     completeOperation(collectInfo, operation,
-                            methodAnnotationInfo, sr);
+                            methodAnnotationInfo, sr, introspectorPlugins);
 
                     for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {
-                        introspectorPlugin.processOperation(operation, methodAnnotationInfo);
+                        introspectorPlugin.processOperation(resource, operation, sr.getClass(), methodAnnotationInfo.getJavaMethod());
                     }
                     operations.add(operation);
                 }
@@ -115,7 +126,7 @@ public class ResourceCollector {
         }
 
         for (IntrospectorPlugin introspectorPlugin : introspectorPlugins) {
-            introspectorPlugin.processResource(resource, sr);
+            introspectorPlugin.processResource(resource, sr.getClass());
         }
     }
 
@@ -124,12 +135,19 @@ public class ResourceCollector {
         Resource resource = new Resource();
         resource.setResourcePath(basePath);
 
+        if (restlet instanceof Directory) {
+            Directory directory = (Directory) restlet;
+            resource.setName(directory.getName());
+            resource.setDescription(directory.getDescription());
+        }
+        if (restlet instanceof ServerResource) {
+            ServerResource serverResource = (ServerResource) restlet;
+            resource.setName(serverResource.getName());
+            resource.setDescription(serverResource.getDescription());
+        }
         if (restlet instanceof DocumentedResource) {
             DocumentedResource documentedServerResource = (DocumentedResource) restlet;
-            resource.setName(documentedServerResource.getResourceName());
-            resource.setDescription(documentedServerResource
-                    .getResourceDescription());
-            resource.setSections(documentedServerResource.getResourceSections());
+            resource.setSections(documentedServerResource.getSections());
         } else {
             String sectionName = restlet.getClass().getPackage().getName();
             resource.getSections().add(sectionName);
@@ -192,7 +210,7 @@ public class ResourceCollector {
      */
     private static void completeOperation(CollectInfo collectInfo,
             Operation operation, MethodAnnotationInfo mai, ServerResource sr,
-            List<IntrospectorPlugin> introspectorPlugins) {
+            List<? extends IntrospectorPlugin> introspectorPlugins) {
         // Loop over the annotated Java methods
         MetadataService metadataService = sr.getMetadataService();
 
@@ -210,7 +228,7 @@ public class ResourceCollector {
 
                     Class<?> outputPayloadType =
                         statusAnnotation.isSerializable() ?
-                         thrownClass : StatusRepresentation.class;
+                         thrownClass : StatusInfo.class;
 
                     RepresentationCollector.addRepresentation(collectInfo,
                             outputPayloadType, null, introspectorPlugins);

@@ -1,7 +1,8 @@
-package org.restlet.ext.apispark.internal.introspection;
+package org.restlet.ext.apispark.internal.introspection.application;
 
 import org.restlet.Restlet;
 import org.restlet.data.ChallengeScheme;
+import org.restlet.ext.apispark.internal.introspection.IntrospectorPlugin;
 import org.restlet.resource.Directory;
 import org.restlet.resource.Finder;
 import org.restlet.resource.ServerResource;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Created by manu on 12/10/2014.
+ * @author Manuel Boillod
  */
 public class RestletCollector {
 
@@ -25,7 +26,7 @@ public class RestletCollector {
             
     public static void collect(CollectInfo collectInfo, String basePath,
                                Restlet restlet, ChallengeScheme scheme,
-                               List<IntrospectorPlugin> introspectorPlugins) {
+                               List<? extends IntrospectorPlugin> introspectorPlugins) {
         if (restlet instanceof Router) {
             collectForRouter(collectInfo, basePath, (Router) restlet, scheme, introspectorPlugins);
         } else if (restlet instanceof Route) {
@@ -50,7 +51,7 @@ public class RestletCollector {
      */
     private static void collectForRouter(CollectInfo collectInfo, String basePath,
                                          Router router, ChallengeScheme scheme,
-                                         List<IntrospectorPlugin> introspectorPlugins) {
+                                         List<? extends IntrospectorPlugin> introspectorPlugins) {
         for (Route route : router.getRoutes()) {
             collectForRoute(collectInfo, basePath, route, scheme, introspectorPlugins);
         }
@@ -62,7 +63,7 @@ public class RestletCollector {
 
     private static void collectForRoute(CollectInfo collectInfo,  String basePath,
                                         Route route, ChallengeScheme scheme,
-                                        List<IntrospectorPlugin> introspectorPlugins) {
+                                        List<? extends IntrospectorPlugin> introspectorPlugins) {
         if (route instanceof TemplateRoute) {
             TemplateRoute templateRoute = (TemplateRoute) route;
             String path = templateRoute.getTemplate().getPattern();
@@ -74,7 +75,7 @@ public class RestletCollector {
 
     private static void collectForFilter(CollectInfo collectInfo, String basePath,
                                          Filter filter, ChallengeScheme scheme,
-                                         List<IntrospectorPlugin> introspectorPlugins) {
+                                         List<? extends IntrospectorPlugin> introspectorPlugins) {
 
         if (filter instanceof ChallengeAuthenticator) {
             scheme = ((ChallengeAuthenticator) filter).getScheme();
@@ -95,7 +96,7 @@ public class RestletCollector {
      */
     private static void collectForFinder(CollectInfo collectInfo, String basePath,
                                              Finder finder, ChallengeScheme scheme,
-                                             List<IntrospectorPlugin> introspectorPlugins) {
+                                             List<? extends IntrospectorPlugin> introspectorPlugins) {
         if (finder instanceof Directory) {
             ResourceCollector.collectResourceForDirectory(collectInfo,
                     (Directory) finder, basePath, scheme, introspectorPlugins);

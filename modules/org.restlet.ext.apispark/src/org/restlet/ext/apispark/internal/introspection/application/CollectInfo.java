@@ -1,4 +1,4 @@
-package org.restlet.ext.apispark.internal.introspection;
+package org.restlet.ext.apispark.internal.introspection.application;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import org.restlet.ext.apispark.internal.model.Resource;
 import org.restlet.ext.apispark.internal.model.Section;
 
 /**
- * Created by manu on 11/10/2014.
+ * @author Manuel Boillod
  */
 public class CollectInfo {
 
