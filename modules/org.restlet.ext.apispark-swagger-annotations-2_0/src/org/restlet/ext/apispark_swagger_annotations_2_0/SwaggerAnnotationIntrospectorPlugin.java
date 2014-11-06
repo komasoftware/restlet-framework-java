@@ -1,4 +1,4 @@
-package org.restlet.ext.apispark.swagger.v2_0.introspector;
+package org.restlet.ext.apispark_swagger_annotations_2_0;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiImplicitParam;
@@ -14,23 +14,19 @@ import org.restlet.ext.apispark.internal.model.Operation;
 import org.restlet.ext.apispark.internal.model.Property;
 import org.restlet.ext.apispark.internal.model.Representation;
 import org.restlet.ext.apispark.internal.model.Resource;
-import org.restlet.ext.apispark.swagger.v2_0.SwaggerAnnotationUtils;
+import org.restlet.ext.apispark_swagger_annotations_2_0.internal.util.SwaggerAnnotationUtils;
 
-import javax.ws.rs.core.Application;
 import java.lang.reflect.Method;
 
 /**
- * Created by manu on 14/10/2014.
+ * Fulfill API Definition from swagger annotation 2.0.
+ *
+ * @author Manuel Boillod
  */
-public class SwaggerAnnotationJaxRsIntrospectorPlugin implements IntrospectorPlugin {
-
+public class SwaggerAnnotationIntrospectorPlugin implements IntrospectorPlugin {
     @Override
     public void processDefinition(Definition definition, Class<?> applicationClazz) {
         //no annotation exists for root definition
-        if (!Application.class.isAssignableFrom(applicationClazz)) {
-            throw new RuntimeException(getClass().getName() + " could only process " +
-                    Application.class.getName() + " application");
-        }
     }
 
     @Override
@@ -38,28 +34,28 @@ public class SwaggerAnnotationJaxRsIntrospectorPlugin implements IntrospectorPlu
         Api api = resourceClazz.getAnnotation(Api.class);
         if (api != null) {
             SwaggerAnnotationUtils.processApi(api, resource);
-        }        
+        }
     }
 
     @Override
-    public void processOperation(Resource resource, Operation operation, Class<?> resourceClazz, Method operationMethod) {
-        ApiOperation apiOperation = operationMethod.getAnnotation(ApiOperation.class);
+    public void processOperation(Resource resource, Operation operation, Class<?> clazz, Method method) {
+        ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
         if (apiOperation != null) {
             SwaggerAnnotationUtils.processApiOperation(apiOperation, operation);
         }
-        ApiResponses apiResponses = operationMethod.getAnnotation(ApiResponses.class);
+        ApiResponses apiResponses = method.getAnnotation(ApiResponses.class);
         if (apiResponses != null) {
             SwaggerAnnotationUtils.processApiResponses(apiResponses, operation);
         }
-        ApiResponse apiResponse = operationMethod.getAnnotation(ApiResponse.class);
+        ApiResponse apiResponse = method.getAnnotation(ApiResponse.class);
         if (apiResponse != null) {
             SwaggerAnnotationUtils.processApiResponse(apiResponse, operation);
         }
-        ApiImplicitParams apiImplicitParams = operationMethod.getAnnotation(ApiImplicitParams.class);
+        ApiImplicitParams apiImplicitParams = method.getAnnotation(ApiImplicitParams.class);
         if (apiImplicitParams != null) {
             SwaggerAnnotationUtils.processApiImplicitParams(apiImplicitParams, operation);
         }
-        ApiImplicitParam apiImplicitParam = operationMethod.getAnnotation(ApiImplicitParam.class);
+        ApiImplicitParam apiImplicitParam = method.getAnnotation(ApiImplicitParam.class);
         if (apiImplicitParam != null) {
             SwaggerAnnotationUtils.processApiImplicitParam(apiImplicitParam, operation);
         }

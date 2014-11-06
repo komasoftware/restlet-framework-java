@@ -1,4 +1,4 @@
-package org.restlet.ext.apispark.swagger.v2_0.introspector;
+package org.restlet.ext.apispark_swagger_annotations_1_2;
 
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiImplicitParam;
@@ -8,43 +8,31 @@ import com.wordnik.swagger.annotations.ApiModelProperty;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiResponse;
 import com.wordnik.swagger.annotations.ApiResponses;
-import org.restlet.Application;
-import org.restlet.engine.resource.MethodAnnotationInfo;
 import org.restlet.ext.apispark.internal.introspection.IntrospectorPlugin;
 import org.restlet.ext.apispark.internal.model.Definition;
 import org.restlet.ext.apispark.internal.model.Operation;
 import org.restlet.ext.apispark.internal.model.Property;
 import org.restlet.ext.apispark.internal.model.Representation;
 import org.restlet.ext.apispark.internal.model.Resource;
-import org.restlet.ext.apispark.swagger.v2_0.SwaggerAnnotationUtils;
-import org.restlet.resource.Directory;
-import org.restlet.resource.ServerResource;
+import org.restlet.ext.apispark_swagger_annotations_1_2.internal.util.SwaggerAnnotationUtils;
 
 import java.lang.reflect.Method;
 
 /**
- * Created by manu on 14/10/2014.
+ * Fulfill API Definition from swagger annotation 1.2.
+ *
+ * @author Manuel Boillod
  */
 public class SwaggerAnnotationIntrospectorPlugin implements IntrospectorPlugin {
+
     @Override
     public void processDefinition(Definition definition, Class<?> applicationClazz) {
         //no annotation exists for root definition
-        if (Application.class.isAssignableFrom(applicationClazz)) {
-            throw new RuntimeException(getClass().getName() + " could only process " +
-                    javax.ws.rs.core.Application.class.getName() + " application");
-        }    }
-
-    @Override
-    public void processResource(Resource resource, ServerResource serverResource) {
-        Api api = serverResource.getClass().getAnnotation(Api.class);
-        if (api != null) {
-            SwaggerAnnotationUtils.processApi(api, resource);
-        }
     }
 
     @Override
-    public void processResource(Resource resource, Directory directory) {
-        Api api = directory.getClass().getAnnotation(Api.class);
+    public void processResource(Resource resource, Class<?> resourceClazz) {
+        Api api = resourceClazz.getAnnotation(Api.class);
         if (api != null) {
             SwaggerAnnotationUtils.processApi(api, resource);
         }
