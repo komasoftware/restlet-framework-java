@@ -837,6 +837,10 @@ public class ClientProxyGenerator extends com.google.gwt.core.ext.Generator {
     		return result;
     }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> fix #965 : ClientProxyGenerator fails with GWT 2.7
     /**
      * Returns the writer used for the content of the proxy class.
      * 
